@@ -1,0 +1,5 @@
+*.pyc
+__ pycache __
+venv
+.idea
+**/migrations/*
