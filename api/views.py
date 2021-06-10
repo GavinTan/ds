@@ -13,8 +13,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.dateparse import parse_datetime
 from .serializers import *
 from .filters import *
-from datetime import datetime
-
+from datetime import datetime, timedelta
+import numpy
 
 # Create your views here.
 
@@ -93,6 +93,15 @@ class VarietyView(viewsets.ModelViewSet, MultipleDelete):
             queryset = queryset.filter().exclude(
                 id__in=PriceData.objects.filter(date=c).values_list('variety', flat=True))
 
+        # serializer = self.get_serializer(queryset, many=True)
+        self.queryset = queryset
+        return super().list(request, *args, **kwargs)
+
+    @action(methods=['post'], detail=False, url_path='action')
+    def action(self, request, *args, **kwargs):
+        a = request.query_params.get('a')
+        uid = request.data.get('uid')
+        queryset = self.get_queryset().filter(user_id=uid)
         if a == 'get_select_category_list':
             categories = queryset.values_list('categories', flat=True)
             data = []
@@ -101,9 +110,7 @@ class VarietyView(viewsets.ModelViewSet, MultipleDelete):
                     for k, v in c.items():
                         data.append({'label': v, 'value': v})
             return Response(data)
-        # serializer = self.get_serializer(queryset, many=True)
-        self.queryset = queryset
-        return super().list(request, *args, **kwargs)
+        return Response()
 
 
 class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
@@ -169,6 +176,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
     @action(methods=['post'], detail=False, url_path='action')
     def action(self, request, *args, **kwargs):
         a = self.request.query_params.get('a')
+        uid = request.data.get('uid')
 
         if a == 'get_chart1_data':
             data = {
@@ -177,30 +185,28 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                 'series_data': []
             }
 
-            queryset = self.get_queryset().order_by('date')
+            queryset = self.get_queryset().filter(user_id=uid).order_by('date')
             for i in queryset:
+                if i.date not in data['x_data']:
+                    data['x_data'].append(i.date)
+
                 for index, e in enumerate(i.categories):
                     category = e.get(f'category{index + 1}')
+                    price = e.get('price')
+
+                    if price is None:
+                        record = InputPriceRecord.objects.filter(category=category, user_id=uid).order_by('-date').first()
+                        if record:
+                            price = record.price
+
                     if category not in data['legend_data']:
+                        series = {'type': 'line', 'name': category, 'showSymbol': False, 'data': [price]}
                         data['legend_data'].append(category)
-
-            for category in data['legend_data']:
-                series = {'type': 'line', 'name': category}
-                price_data = []
-                for i in queryset:
-                    for index, e in enumerate(i.categories):
-                        if category == e.get(f'category{index + 1}'):
-                            price = e.get('price')
-                            if price is None:
-                                record = InputPriceRecord.objects.filter(category=category).order_by('-date').first()
-                                if record:
-                                    price = record.price
-                            price_data.append(price)
-                            if i.date not in data['x_data']:
-                                data['x_data'].append(i.date)
-                series['data'] = price_data
-                data['series_data'].append(series)
-
+                        data['series_data'].append(series)
+                    else:
+                        for series in data['series_data']:
+                            if series.get('name') == category:
+                                series.get('data').append(price)
             return Response(data)
 
         if a == 'get_chart2_data':
@@ -210,24 +216,26 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                 'series_data': []
             }
 
-            queryset = self.get_queryset().order_by('date')
+            queryset = self.get_queryset().filter(user_id=uid).order_by('date')
             for category in data['legend_data']:
-                series = {'type': 'line', 'name': category}
+                series = {'type': 'line', 'showSymbol': False, 'name': category}
                 price_data = []
                 for i in queryset:
+                    if i.date not in data['x_data']:
+                        data['x_data'].append(i.date)
+
                     for index, e in enumerate(i.categories):
                         if category == e.get(f'category{index + 1}'):
                             price = e.get('price')
                             if price is None:
-                                record = InputPriceRecord.objects.filter(category=category).order_by('-date').first()
+                                record = InputPriceRecord.objects.filter(category=category, user_id=uid).order_by('-date').first()
                                 if record:
                                     price = record.price
+
                             price_data.append(price)
-                            if i.date not in data['x_data']:
-                                data['x_data'].append(i.date)
+
                 series['data'] = price_data
                 data['series_data'].append(series)
-
             return Response(data)
 
         if a == 'get_chart3_data':
@@ -237,61 +245,63 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                 'series_data': []
             }
 
-            categories = []
-            queryset = self.get_queryset().order_by('date')
+            variety_list = list(Variety.objects.filter(user_id=uid).order_by('create_time').values_list('id', flat=True)[:3])
+            queryset = self.get_queryset().filter(user_id=uid).order_by('date')
             for i in queryset:
                 minuend_name = ''
+                n = 0
                 for index, e in enumerate(i.categories):
                     category = e.get(f'category{index + 1}')
+                    price = e.get('price')
+                    if price is None:
+                        record = InputPriceRecord.objects.filter(category=category, user_id=uid).order_by('-date').first()
+                        if record:
+                            price = record.price
+
+                    if price.isdigit():
+                        price = int(price)
+
                     if 'category1' in e:
                         minuend_name = category
+                        n = price
                     else:
+                        price = n - price
                         name = f'{i.variety.name}{minuend_name}-{category}'
                         if name not in data['legend_data']:
+                            series = {'type': 'line', 'showSymbol': False, 'name': name, 'data': [price]}
                             data['legend_data'].append(name)
-                        categories.append({'name': name, 'value': category})
-
-            for category in categories:
-                series = {'type': 'line', 'name': category.get('name')}
-                price_data = []
-                for i in queryset:
-                    n = 0
-                    for index, e in enumerate(i.categories):
-                        price = e.get('price')
-                        if price is None:
-                            record = InputPriceRecord.objects.filter(category=category).order_by('-date').first()
-                            if record:
-                                price = record.price
-
-                        if price.isdigit():
-                            price = int(price)
-
-                        if 'category1' in e:
-                            n = price
+                            data['series_data'].append(series)
                         else:
-                            price = n - price
-                            if category.get('value') == e.get(f'category{index + 1}'):
-                                if i.date not in data['x_data']:
-                                    data['x_data'].append(i.date)
-                                price_data.append(price)
-                series['data'] = price_data
-                data['series_data'].append(series)
+                            for series in data['series_data']:
+                                if series.get('name') == name:
+                                    series.get('data').append(price)
 
-            variety_queryset = Variety.objects.all().order_by('create_time')
+                if i.date not in data['x_data']:
+                    data['x_data'].append(i.date)
+
+            variety_queryset = Variety.objects.all().filter(user_id=uid).order_by('create_time')[:4]
             for i in queryset:
-                if list(variety_queryset).index(i.variety) == 0:
-                    subtrahend = [
-                        queryset.filter(date=i.date, variety=variety_queryset[1].id).first(),
-                        queryset.filter(date=i.date, variety=variety_queryset[2].id).first(),
-                        queryset.filter(date=i.date, variety=variety_queryset[3].id).first()
-                    ]
-                    for ii in i.categories:
+                subtrahend = []
+                if i.variety in variety_queryset:
+                    for v_index, v in enumerate(variety_queryset):
+                        if v_index != 0:
+                            q = queryset.filter(date=i.date, variety=v).first()
+                            if list(variety_queryset).index(i.variety) == 0:
+                                subtrahend.append(q)
+                            if list(variety_queryset).index(i.variety) == 1 and v_index != 1:
+                                subtrahend.append(q)
+                            if list(variety_queryset).index(i.variety) == 2 and v_index == 3:
+                                subtrahend.append(q)
+                    if list(variety_queryset).index(i.variety) == 3:
+                        break
+
+                    for category in i.categories:
                         key_list = ['category1', 'category2']
                         for key in key_list:
-                            if key in ii:
-                                price = ii.get('price')
+                            if key in category:
+                                price = category.get('price')
                                 if price is None:
-                                    record = InputPriceRecord.objects.filter(category=ii.get(key)).order_by(
+                                    record = InputPriceRecord.objects.filter(category=category.get(key), user_id=uid).order_by(
                                         '-date').first()
                                     if record:
                                         price = record.price
@@ -302,108 +312,21 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                                 minuend = price
                                 for s in subtrahend:
                                     if s:
-                                        for iii in s.categories:
-                                            if key in iii:
-                                                price = iii.get('price')
+                                        for s_category in s.categories:
+                                            if key in s_category:
+                                                price = s_category.get('price')
                                                 if price is None:
                                                     record = InputPriceRecord.objects.filter(
-                                                        category=iii.get(key)).order_by('-date').first()
+                                                        category=s_category.get(key), user_id=uid).order_by('-date').first()
                                                     if record:
                                                         price = record.price
 
                                                 if price.isdigit():
                                                     price = int(price)
 
-                                                name = f"{i.variety.name}{ii.get(key)}-{iii.get(key)}"
+                                                name = f"{i.variety.name}{category.get(key)}-{s_category.get(key)}"
                                                 if name not in data['legend_data']:
-                                                    series = {'type': 'line', 'name': name, 'data': [minuend - price]}
-                                                    data['series_data'].append(series)
-                                                    data['legend_data'].append(name)
-                                                else:
-                                                    for series in data['series_data']:
-                                                        if series.get('name') == name:
-                                                            series.get('data').append(minuend - price)
-                if list(variety_queryset).index(i.variety) == 1:
-                    subtrahend = [
-                        queryset.filter(date=i.date, variety=variety_queryset[2].id).first(),
-                        queryset.filter(date=i.date, variety=variety_queryset[3].id).first()
-                    ]
-
-                    for ii in i.categories:
-                        key_list = ['category1', 'category2']
-                        for key in key_list:
-                            if key in ii:
-                                price = ii.get('price')
-                                if price is None:
-                                    record = InputPriceRecord.objects.filter(category=ii.get(key)).order_by(
-                                        '-date').first()
-                                    if record:
-                                        price = record.price
-
-                                if price.isdigit():
-                                    price = int(price)
-
-                                minuend = price
-                                for s in subtrahend:
-                                    if s:
-                                        for iii in s.categories:
-                                            if key in iii:
-                                                price = iii.get('price')
-                                                if price is None:
-                                                    record = InputPriceRecord.objects.filter(
-                                                        category=iii.get(key)).order_by('-date').first()
-                                                    if record:
-                                                        price = record.price
-
-                                                if price.isdigit():
-                                                    price = int(price)
-
-                                                name = f"{i.variety.name}{ii.get(key)}-{iii.get(key)}"
-                                                if name not in data['legend_data']:
-                                                    series = {'type': 'line', 'name': name, 'data': [minuend - price]}
-                                                    data['series_data'].append(series)
-                                                    data['legend_data'].append(name)
-                                                else:
-                                                    for series in data['series_data']:
-                                                        if series.get('name') == name:
-                                                            series.get('data').append(minuend - price)
-                if list(variety_queryset).index(i.variety) == 2:
-                    subtrahend = [
-                        queryset.filter(date=i.date, variety=variety_queryset[3].id).first()
-                    ]
-
-                    for ii in i.categories:
-                        key_list = ['category1', 'category2']
-                        for key in key_list:
-                            if key in ii:
-                                price = ii.get('price')
-                                if price is None:
-                                    record = InputPriceRecord.objects.filter(category=ii.get(key)).order_by(
-                                        '-date').first()
-                                    if record:
-                                        price = record.price
-
-                                if price.isdigit():
-                                    price = int(price)
-
-                                minuend = price
-                                for s in subtrahend:
-                                    if s:
-                                        for iii in s.categories:
-                                            if key in iii:
-                                                price = iii.get('price')
-                                                if price is None:
-                                                    record = InputPriceRecord.objects.filter(
-                                                        category=iii.get(key)).order_by('-date').first()
-                                                    if record:
-                                                        price = record.price
-
-                                                if price.isdigit():
-                                                    price = int(price)
-
-                                                name = f"{i.variety.name}{ii.get(key)}-{iii.get(key)}"
-                                                if name not in data['legend_data']:
-                                                    series = {'type': 'line', 'name': name, 'data': [minuend - price]}
+                                                    series = {'type': 'line', 'showSymbol': False, 'name': name, 'data': [minuend - price]}
                                                     data['series_data'].append(series)
                                                     data['legend_data'].append(name)
                                                 else:
@@ -419,19 +342,18 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                 'series_data': []
             }
 
-            select_category = request.data.get('selectCategory')
+            select_category = request.data.get('selectCategory', [])
             select_date = request.data.get('date')
             date_range = [parse_datetime(select_date).date(), datetime.now().date()]
-            print(select_category)
-            print(date_range)
 
-            queryset = self.get_queryset().filter(date__range=date_range).order_by('date')
+            n = {'z': 0, 'x': 0}
+            queryset = self.get_queryset().filter(date__range=date_range, user_id=uid).order_by('date')
             for i in queryset:
                 for index, e in enumerate(i.categories):
                     category = e.get(f'category{index + 1}')
                     price = e.get('price')
                     if price is None:
-                        record = InputPriceRecord.objects.filter(category=category, date_range=date_range).order_by('-date').first()
+                        record = InputPriceRecord.objects.filter(category=category, date_range=date_range, user_id=uid).order_by('-date').first()
                         if record:
                             price = record.price
 
@@ -441,17 +363,82 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                     for c in select_category:
                         for k, v in c.items():
                             if category == v:
+                                if i.date == parse_datetime(select_date).date():
+                                    if select_category.index({k: v}) == 0:
+                                        n['z'] = price
+                                    if select_category.index({k: v}) == 1:
+                                        n['x'] = price
+
                                 if i.date not in data['x_data']:
                                     data['x_data'].append(i.date)
                                 if category not in data['legend_data']:
-                                    series = {'type': 'line', 'name': category, 'data': [price]}
+                                    series = {'type': 'line', 'showSymbol': False, 'name': category, 'data': [price]}
                                     data['legend_data'].append(category)
                                     data['series_data'].append(series)
                                 else:
                                     for series in data['series_data']:
                                         if series.get('name') == category:
                                             series.get('data').append(price)
-            print(data)
+
+            series1 = {'type': 'line', 'showSymbol': False, 'name': 'V', 'data': []}
+            series2 = {'type': 'line', 'showSymbol': False, 'name': f"{select_category[0]['category1']}+V", 'data': []}
+            if len(data['series_data']) == 2:
+                for x in data['series_data'][1]['data']:
+                    v = n['z'] - n['x']
+                    series2['data'].append(x + v)
+                    series1['data'].append(v)
+
+                data['legend_data'].append(f"{select_category[0]['category1']}+V")
+                data['legend_data'].append('V')
+                data['series_data'].append(series1)
+                data['series_data'].append(series2)
+
             return Response(data)
 
-        return Response({})
+        if a == 'get_chart5_data':
+            data = {
+                'x_data': [],
+                'legend_data': [],
+                'series_data': []
+            }
+            select_category = request.data.get('selectCategory', [])
+            select_date = request.data.get('date')
+            date_range = [parse_datetime(select_date).date(), datetime.now().date()]
+            queryset = self.get_queryset().filter(date__range=date_range, user_id=uid).order_by('date')
+            n = {}
+            for i in queryset:
+                for index, e in enumerate(i.categories):
+                    price = e.get('price')
+                    if price is None:
+                        record = InputPriceRecord.objects.filter(category=e.get(f'category{index + 1}'), date_range=date_range, user_id=uid).order_by(
+                            '-date').first()
+                        if record:
+                            price = record.price
+
+                    if price.isdigit():
+                        price = int(price)
+
+                    for category in [item[key] for item in select_category for key in item]:
+                        if category == e.get(f'category{index + 1}'):
+                            if i.date not in data['x_data']:
+                                data['x_data'].append(i.date)
+
+                            if category not in data['legend_data']:
+                                series = {'type': 'line', 'showSymbol': False, 'name': category, 'data': [price]}
+                                data['series_data'].append(series)
+                                data['legend_data'].append(category)
+                            if i.date == parse_datetime(select_date).date():
+                                n[category] = price
+                            else:
+                                c = n.get(category, 0) - price
+                                if n.get(category, 0) > price:
+                                    price = -abs(c)
+                                else:
+                                    price = abs(c)
+
+                                for series in data['series_data']:
+                                    if series.get('name') == category:
+                                        series.get('data').append(price)
+            return Response(data)
+
+        return Response()
