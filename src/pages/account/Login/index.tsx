@@ -9,7 +9,7 @@ import { Link, history } from 'umi';
 import { login } from '@/services/api/user';
 import styles from './index.less';
 import {useModel} from "@@/plugin-model/useModel";
-import {setToken} from "@/utils/auth";
+import {getToken, setToken} from "@/utils/auth";
 
 const LoginMessage: React.FC<{
   content: string;
@@ -56,7 +56,11 @@ const Login: React.FC = () => {
       // 登录
       const res = await login({ ...values });
       if (res.success && res.token) {
-        setToken(res.token)
+        if (values.autoLogin) {
+          setToken(res.token, 7)
+        } else {
+          setToken(res.token)
+        }
         message.success("登录成功");
         await fetchUserInfo();
         goto();
@@ -87,7 +91,7 @@ const Login: React.FC = () => {
         <div className={styles.main}>
           <ProForm
             initialValues={{
-              autoLogin: true,
+              autoLogin: getToken(),
             }}
             submitter={{
               searchConfig: {
@@ -122,7 +126,6 @@ const Login: React.FC = () => {
                     prefix: <UserOutlined className={styles.prefixIcon} />,
                   }}
                   placeholder="用户名"
-                  initialValue={"admin"}
                   rules={[
                     {
                       required: true,
@@ -132,7 +135,6 @@ const Login: React.FC = () => {
                 />
                 <ProFormText.Password
                   name="password"
-                  initialValue={"123456"}
                   fieldProps={{
                     size: 'large',
                     prefix: <LockOutlined className={styles.prefixIcon} />,

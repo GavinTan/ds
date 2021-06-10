@@ -1,16 +1,30 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import ReactECharts from 'echarts-for-react';
 import {Card} from "antd";
 import {actionPriceData} from "@/services/api/pricedata";
+import {PageContainer} from "@ant-design/pro-layout";
+import {useModel} from "@@/plugin-model/useModel";
 
 const Chart1: React.FC = () => {
-  const [data, setData] = useState<API.ChartData>({})
+  const [data, setData] = useState<API.ChartData>({});
+  const {initialState} = useModel<any>('@@initialState');
+  const echartsRef = useRef<any>(null);
 
   useEffect(() => {
-    actionPriceData({a: 'get_chart1_data'}).then((res) => {
-      setData(res)
+    echartsRef.current?.getEchartsInstance().showLoading();
+    actionPriceData({a: 'get_chart1_data'}, {data: {uid: initialState.currentUser.id}}).then((res) => {
+      setData(res);
+      echartsRef.current?.getEchartsInstance().hideLoading();
     })
   }, [])
+
+  const start = () => {
+    if (data.x_data?.length){
+      const n = 6 / data.x_data.length;
+      return parseInt(((1 - n) * 100).toFixed(), 10) + 5;
+    }
+    return 0;
+  }
 
   const options = {
     title: {
@@ -23,8 +37,8 @@ const Chart1: React.FC = () => {
       data: data.legend_data
     },
     grid: {
-      left: '3%',
-      right: '4%',
+      left: '6%',
+      right: '6%',
       bottom: 80,
       containLabel: true,
     },
@@ -56,16 +70,20 @@ const Chart1: React.FC = () => {
           color: '#8392A5'
         }
       },
-      brushSelect: true
+      brushSelect: true,
+      start: start(),
+      end: 100
     }, {
       type: 'inside'
     }],
   };
 
   return (
+    <PageContainer>
     <Card>
-      <ReactECharts option={options} style={{height: 400}}/>
+      <ReactECharts option={options} ref={echartsRef} style={{height: 'calc(100vh - 250px)'}}/>
     </Card>
+    </PageContainer>
   );
 };
 

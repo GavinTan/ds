@@ -1,23 +1,52 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import ReactECharts from 'echarts-for-react';
 import {Card} from "antd";
 import {actionPriceData} from "@/services/api/pricedata";
+import {PageContainer} from "@ant-design/pro-layout";
+import {useModel} from "@@/plugin-model/useModel";
 
 const Chart3: React.FC = () => {
   const [data, setData] = useState<API.ChartData>({})
+  const {initialState} = useModel<any>('@@initialState');
+  const echartsRef = useRef<any>(null);
 
   useEffect(() => {
-    actionPriceData({a: 'get_chart3_data'}).then((res) => {
+    echartsRef.current?.getEchartsInstance().showLoading()
+    actionPriceData({a: 'get_chart3_data'}, {data: {uid: initialState.currentUser.id}}).then((res) => {
       setData(res)
+      echartsRef.current?.getEchartsInstance().hideLoading()
     })
   }, [])
+
+  const start = () => {
+    if (data.x_data?.length){
+      const n = 6 / data.x_data.length;
+      return parseInt(((1 - n) * 100).toFixed(), 10) + 5;
+    }
+    return 0;
+  }
 
   const options = {
     title: {
       text: ''
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      formatter: (params: any) => {
+        let name = ''
+        let html = ''
+        params.forEach((e: any, i: any) => {
+          name = e.name
+          html += `
+              <div style="display: block;height:20px;${i % 2 === 0 ? 'width: 50%;' : 'width: 50%;'}float:left;">
+                  <i style="width: 10px;height: 10px;display: inline-block;background: ${e.color};border-radius: 10px;"></i>
+                  <span>${e.seriesName}<b style="float: right;margin-right: 20px;">${e.data}</b></span>
+              </div>
+          `
+        })
+        return `<div style="width: 300px;"><span>${name}</span><br>${html}<div>`
+      },
+
     },
     legend: {
       data: data.legend_data
@@ -56,16 +85,20 @@ const Chart3: React.FC = () => {
           color: '#8392A5'
         }
       },
-      brushSelect: true
+      brushSelect: true,
+      start: start(),
+      end: 100
     }, {
       type: 'inside'
     }],
   };
 
   return (
-    <Card>
-      <ReactECharts option={options} style={{height: 500}}/>
-    </Card>
+    <PageContainer>
+      <Card>
+        <ReactECharts option={options} ref={echartsRef} style={{height: 'calc(100vh - 250px)'}}/>
+      </Card>
+    </PageContainer>
   );
 };
 

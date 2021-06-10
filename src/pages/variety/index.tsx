@@ -5,7 +5,7 @@ import React, {useRef, useState} from 'react';
 import {FooterToolbar, PageContainer} from '@ant-design/pro-layout';
 import type {ActionType, ProColumns} from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import type { FormValueType } from './components/UpdateForm';
+import type {FormValueType} from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
 import CreateForm from './components/CreateForm';
 import {createVariety, getAllVarietyData, multipleDeleteVariety, updateVariety} from '@/services/api/variety';
@@ -24,7 +24,7 @@ const handleCreate = async (fields: API.VarietyResult) => {
 
   try {
     await createVariety({
-      data: {...fields }
+      data: {...fields}
     });
     hide();
     message.success('添加成功');
@@ -91,7 +91,7 @@ const VarietyList: React.FC = () => {
   const formRef = useRef<FormInstance>();
   const [currentRow, setCurrentRow] = useState<API.VarietyResult>();
   const [selectedRowsState, setSelectedRows] = useState<API.VarietyResult[]>([]);
-  const { initialState } = useModel('@@initialState');
+  const {initialState} = useModel('@@initialState');
 
   const columns: ProColumns<API.VarietyResult>[] = [
     {
@@ -112,9 +112,9 @@ const VarietyList: React.FC = () => {
       title: '类别',
       dataIndex: 'categories',
       align: "center",
-      renderText: (_:  []) => {
+      renderText: (_: []) => {
         const d: never[] = [];
-        _.forEach((item) =>{
+        _.forEach((item) => {
           Object.keys(item).forEach((key) => {
             d.push(item[key])
           })
@@ -150,7 +150,11 @@ const VarietyList: React.FC = () => {
             setUpdateModalVisible(true);
             setCurrentRow(record);
           }}
-          className={moment().get('date') !== moment(record.create_time).get('date') && 'disabled' || ''}
+          className={
+            initialState?.currentUser?.is_superuser === false &&
+            (moment().get('date') !== moment(record.create_time).get('date') &&
+              'disabled' || '') || ''
+          }
         >
           编辑
         </a>,
@@ -175,7 +179,7 @@ const VarietyList: React.FC = () => {
               setCreateModalVisible(true);
             }}
           >
-            <PlusOutlined /> 新建
+            <PlusOutlined/> 新建
           </Button>,
         ]}
         params={{uid: initialState?.currentUser?.id}}

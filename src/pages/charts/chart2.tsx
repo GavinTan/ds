@@ -4,6 +4,8 @@ import ReactECharts from "echarts-for-react";
 import {actionPriceData} from "@/services/api/pricedata";
 import {actionVariety} from "@/services/api/variety";
 import {useModel} from "@@/plugin-model/useModel";
+import {PageContainer} from "@ant-design/pro-layout";
+import {ProFormText} from "@ant-design/pro-form";
 
 const {TabPane} = Tabs;
 
@@ -16,12 +18,30 @@ const Chart2: React.FC = () => {
   const echartsRef = useRef<any>(null);
   const [selectTab, setSelectTab] = useState<string>('1')
   const [form] = Form.useForm()
+  const [tmpData] = useState<{ tab: string, selectCategory: string[] }[]>([{tab: '1', selectCategory: []}])
 
   useEffect(() => {
-    actionVariety({a: 'get_select_category_list', uid: initialState.currentUser.id}).then((res) => {
+    echartsRef.current?.getEchartsInstance().showLoading()
+    actionPriceData({a: 'get_chart1_data'}, {data: {uid: initialState.currentUser.id}}).then((res) => {
+      setData1(res)
+      setData2(res)
+      setData3(res)
+      echartsRef.current?.getEchartsInstance().hideLoading()
+    })
+    actionVariety({a: 'get_select_category_list'}, {data: {uid: initialState.currentUser.id}}).then((res) => {
       setSelectCategoryList(res.data)
     })
   }, [])
+
+  const start = () => {
+    // eslint-disable-next-line no-eval
+    const v = eval(`data${selectTab}`).x_data.length;
+    if (v){
+      const n = 6 / v;
+      return parseInt(((1 - n) * 100).toFixed(), 10) + 5;
+    }
+    return 0;
+  }
 
   const getOption = (key: string) => {
     return {
@@ -71,7 +91,9 @@ const Chart2: React.FC = () => {
             color: '#8392A5'
           }
         },
-        brushSelect: true
+        brushSelect: true,
+        start: start(),
+        end: 100
       }, {
         type: 'inside'
       }],
@@ -80,55 +102,89 @@ const Chart2: React.FC = () => {
   const Tab = (index: number) => {
     return (
       <TabPane tab={`Tab${index}`} key={index}>
-        <ReactECharts option={getOption(selectTab)} ref={echartsRef} style={{height: 400}}/>
+        <ReactECharts option={getOption(selectTab)} ref={echartsRef} style={{height: 'calc(100vh - 320px)'}}/>
       </TabPane>
     )
   }
 
+  useEffect(() => {
+    echartsRef.current.getEchartsInstance().setOption(getOption(selectTab), true)
+    // eslint-disable-next-line no-eval
+  }, [eval(`data${selectTab}`), echartsRef])
+
   return (
-    <Card>
-      <Tabs
-        onChange={(activeKey) => {
-          setSelectTab(activeKey)
-          form.setFieldsValue({selectCategory: []})
-        }}
-        tabBarExtraContent={
-          <Form
-            layout="inline"
-            form={form}
-            onFinish={(values) => {
-              actionPriceData({a: 'get_chart2_data'}, {data: values}).then((res) => {
-                echartsRef.current.getEchartsInstance().clear()
-                // eslint-disable-next-line no-eval
-                eval(`setData${selectTab}`)(res)
-              })
-            }}
-          >
-            <Form.Item
-              name="selectCategory"
-              rules={[{required: true, message: "至少选择一项"}]}
-              validateTrigger={[]}
+    <PageContainer>
+      <Card>
+        <Tabs
+          onChange={(activeKey) => {
+            setSelectTab(activeKey)
+            const isExist = tmpData.some((v) => {
+              if (v.tab === activeKey) {
+                form.setFieldsValue({selectCategory: v.selectCategory})
+              }
+              return v.tab === activeKey
+            })
+
+            if (!isExist) {
+              form.setFieldsValue({selectCategory: []})
+            }
+          }}
+          tabBarExtraContent={
+            <Form
+              layout="inline"
+              form={form}
+              onFinish={(values) => {
+                const t: string[] = [];
+                tmpData.forEach((v: { tab: string, selectCategory: string[] }) => {
+                  if (v.tab === selectTab) {
+                    // eslint-disable-next-line no-param-reassign
+                    v.selectCategory = values.selectCategory
+                  }
+                  t.push(v.tab)
+                })
+                if (!t.includes(selectTab)) {
+                  tmpData.push({tab: selectTab, selectCategory: values.selectCategory})
+                }
+
+                echartsRef.current.getEchartsInstance().showLoading()
+                actionPriceData({a: 'get_chart2_data'}, {data: values}).then((res) => {
+                  // eslint-disable-next-line no-eval
+                  eval(`setData${selectTab}`)(res)
+                  echartsRef.current.getEchartsInstance().hideLoading()
+                })
+              }}
             >
-              <Select
-                mode="multiple"
-                style={{width: 200}} placeholder="请选择"
-                options={selectCategoryList}
+              <ProFormText
+                name="uid"
+                initialValue={initialState.currentUser.id}
+                hidden
               />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                查看
-              </Button>
-            </Form.Item>
-          </Form>
-        }
-      >
-        {[1, 2, 3].map((value) => {
-          return Tab(value)
-        })
-        }
-      </Tabs>
-    </Card>
+              <Form.Item
+                name="selectCategory"
+                rules={[{required: true, message: "至少选择一项"}]}
+                validateTrigger={[]}
+              >
+                <Select
+                  mode="multiple"
+                  style={{width: 200}} placeholder="请选择"
+                  options={selectCategoryList}
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  查看
+                </Button>
+              </Form.Item>
+            </Form>
+          }
+        >
+          {[1, 2, 3].map((value) => {
+            return Tab(value)
+          })
+          }
+        </Tabs>
+      </Card>
+    </PageContainer>
   )
 };
 

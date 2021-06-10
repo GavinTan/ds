@@ -45,12 +45,31 @@ const InputPriceForm: React.FC<CreateFormProps> = (props) => {
         initialValue={initialState.currentUser.id}
         hidden
       />
+      <ProFormDatePicker
+        label="日期"
+        name="date"
+        width="md"
+        initialValue={moment()}
+        rules={[{required: true}]}
+        fieldProps={{
+          disabledDate: (current) => {
+            return [6, 7].indexOf(moment(current).isoWeekday()) !== -1
+          },
+          onChange: (date, dateString) => {
+            form.setFieldsValue({variety: [], categories: []})
+            getAllVarietyData({a: 'get_variety_list', c: dateString, uid: initialState.currentUser.id}).then((res: any) => {
+              setVarietySelectList(res.data.map((item: API.VarietyResult) => ({label: item.name, value: item.id})))
+            })
+          }
+        }}
+      />
       {varietySelectList &&
       <ProFormSelect
         label="品种"
         width="md"
         name="variety"
         options={varietySelectList}
+        rules={[{required: true}]}
         fieldProps={{
           onSelect: (value, option) => {
             getVarietyData({id: value, }).then((res) => {
@@ -92,24 +111,6 @@ const InputPriceForm: React.FC<CreateFormProps> = (props) => {
           </>
         )}
       </Form.List>
-      <ProFormDatePicker
-        label="日期"
-        name="date"
-        width="md"
-        initialValue={moment()}
-        rules={[{required: true}]}
-        fieldProps={{
-          disabledDate: (current) => {
-            return [6, 7].indexOf(moment(current).isoWeekday()) !== -1
-          },
-          onChange: (date, dateString) => {
-            form.setFieldsValue({variety: [], categories: []})
-            getAllVarietyData({a: 'get_variety_list', c: dateString, uid: initialState.currentUser.id}).then((res: any) => {
-              setVarietySelectList(res.data.map((item: API.VarietyResult) => ({label: item.name, value: item.id})))
-            })
-          }
-        }}
-      />
     </ModalForm>
   );
 };
