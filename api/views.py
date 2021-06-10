@@ -14,7 +14,6 @@ from django.utils.dateparse import parse_datetime
 from .serializers import *
 from .filters import *
 from datetime import datetime, timedelta
-import numpy
 
 # Create your views here.
 
