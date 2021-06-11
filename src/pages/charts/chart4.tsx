@@ -22,7 +22,7 @@ const Chart4: React.FC = () => {
   const [form] = Form.useForm()
   const [tmpData] = useState<{ tab: string, selectCategory: string[], date: string }[]>([{
     tab: '1',
-    selectCategory: [],
+    selectCategory: ['1', '2'],
     date: ''
   }])
 
@@ -31,6 +31,19 @@ const Chart4: React.FC = () => {
       setSelectCategoryList(res.data)
     })
   }, [])
+
+  const start = () => {
+    // eslint-disable-next-line no-eval
+    const v = eval(`data${selectTab}`).x_data.length;
+    if (v){
+      const n = (1 - (6 / v)) * 100;
+      if (n > 99) {
+        return parseFloat(n.toFixed(2)) + 0.05;
+      }
+      return parseInt(n.toFixed(), 10) + 5;
+    }
+    return 0;
+  }
 
   const getOption = (key: string) => {
     return {
@@ -47,6 +60,7 @@ const Chart4: React.FC = () => {
       grid: {
         left: '3%',
         right: '4%',
+        top: 100,
         bottom: 80,
         containLabel: true,
       },
@@ -80,7 +94,9 @@ const Chart4: React.FC = () => {
             color: '#8392A5'
           }
         },
-        brushSelect: true
+        brushSelect: true,
+        start: start(),
+        end: 100
       }, {
         type: 'inside'
       }],

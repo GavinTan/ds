@@ -20,8 +20,11 @@ const Chart3: React.FC = () => {
 
   const start = () => {
     if (data.x_data?.length){
-      const n = 6 / data.x_data.length;
-      return parseInt(((1 - n) * 100).toFixed(), 10) + 5;
+      const n = (1 - (6 / data.x_data.length)) * 100;
+      if (n > 99) {
+        return parseFloat(n.toFixed(2)) + 0.05;
+      }
+      return parseInt(n.toFixed(), 10) + 5;
     }
     return 0;
   }
@@ -35,7 +38,9 @@ const Chart3: React.FC = () => {
       formatter: (params: any) => {
         let name = ''
         let html = ''
+        const length: number[] = []
         params.forEach((e: any, i: any) => {
+          length.push(e.seriesName.length)
           name = e.name
           html += `
               <div style="display: block;height:20px;${i % 2 === 0 ? 'width: 50%;' : 'width: 50%;'}float:left;">
@@ -44,7 +49,7 @@ const Chart3: React.FC = () => {
               </div>
           `
         })
-        return `<div style="width: 300px;"><span>${name}</span><br>${html}<div>`
+        return `<div style="width: ${Math.max(...length) * 10 + 300}px;"><span>${name}</span><br>${html}<div>`
       },
 
     },
@@ -54,6 +59,7 @@ const Chart3: React.FC = () => {
     grid: {
       left: '3%',
       right: '4%',
+      top: 100,
       bottom: 80,
       containLabel: true,
     },

@@ -11,68 +11,70 @@
     ],
   },
   {
+    name: '欢迎',
     path: '/welcome',
-    name: 'welcome',
     icon: 'smile',
     component: './Welcome',
   },
   {
+    name: '数据',
     path: '/data',
-    name: 'data',
-    icon: 'crown',
+    icon: 'AccountBookOutlined',
     routes: [
       {
-        name: 'variety',
+        name: '品种',
         icon: 'user',
         path: '/data/variety',
         access: 'user',
         component: './variety',
       },
       {
-        name: 'priceData',
+        name: '价格',
         path: '/data/price',
         access: 'user',
-        component: './priceData',
+        component: './price',
       }
     ]
   },
   {
+    name: '图表',
     path: '/charts',
-    name: 'chart',
-    icon: 'crown',
+    icon: 'LineChartOutlined',
     routes: [
       {
-        name: 'chart1',
-        icon: 'user',
+        name: '图表1',
         path: '/charts/chart1',
         access: 'user',
         component: './charts/chart1',
       },
       {
-        name: 'chart2',
-        icon: 'user',
+        name: '图表2',
         path: '/charts/chart2',
         access: 'user',
         component: './charts/chart2',
       },
       {
-        name: 'chart3',
-        icon: 'user',
+        name: '图表3',
         path: '/charts/chart3',
         access: 'user',
         component: './charts/chart3',
       },
       {
-        name: 'chart4',
-        icon: 'user',
+        name: '图表4',
         path: '/charts/chart4',
         access: 'user',
         component: './charts/chart4',
       },
+      {
+        name: '图表5',
+        path: '/charts/chart5',
+        access: 'user',
+        component: './charts/chart5',
+      },
     ]
   },
   {
-    name: 'user',
+    name: '用户',
     icon: 'user',
     path: '/user',
     access: 'admin',

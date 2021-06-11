@@ -5,6 +5,7 @@ import { history, useModel } from 'umi';
 import { stringify } from 'querystring';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
+import {removeToken} from "@/utils/auth";
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -17,6 +18,7 @@ const loginOut = async () => {
   const { query = {}, pathname } = history.location;
   const { redirect } = query;
   localStorage.clear()
+  removeToken()
   // Note: There may be security issues, please note
   if (window.location.pathname !== '/account/login' && !redirect) {
     history.replace({

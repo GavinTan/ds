@@ -73,6 +73,8 @@ declare namespace API {
     x_data?: [];
     legend_data?: [];
     series_data?: SeriesData[];
+    tag?: string;
+    tag_variety?: boolean;
   }
 
   type FakeCaptcha = {

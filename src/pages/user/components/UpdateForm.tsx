@@ -17,6 +17,7 @@ export type UpdateFormProps = {
 };
 
 const UpdateForm: React.FC<UpdateFormProps> = (props) => {
+  console.log(props.values)
   return (
     <ModalForm
       title="编辑用户"
@@ -74,6 +75,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
           }
         ]}
         initialValue={`${props.values.is_superuser}`}
+        disabled={props.values.username === 'admin'}
       />
     </ModalForm>
   );

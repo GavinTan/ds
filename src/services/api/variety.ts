@@ -16,15 +16,15 @@ export async function actionVariety(
   params?: {
     // query
     a?: string;
-    c?: string;
-    uid?: number;
-  }
+  },
+  options?: { [key: string]: any }
   ) {
-  return request<any>(`/api/variety/`, {
-    method: 'GET',
+  return request<any>(`/api/variety/action/`, {
+    method: 'POST',
     params: {
       ...params,
-    }
+    },
+    ...(options || {}),
   });
 }
 

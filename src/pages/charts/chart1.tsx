@@ -20,8 +20,11 @@ const Chart1: React.FC = () => {
 
   const start = () => {
     if (data.x_data?.length){
-      const n = 6 / data.x_data.length;
-      return parseInt(((1 - n) * 100).toFixed(), 10) + 5;
+      const n = (1 - (6 / data.x_data.length)) * 100;
+      if (n > 99) {
+        return parseFloat(n.toFixed(2)) + 0.05;
+      }
+      return parseInt(n.toFixed(), 10) + 5;
     }
     return 0;
   }
@@ -39,6 +42,7 @@ const Chart1: React.FC = () => {
     grid: {
       left: '6%',
       right: '6%',
+      top: 100,
       bottom: 80,
       containLabel: true,
     },

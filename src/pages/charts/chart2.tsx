@@ -37,8 +37,11 @@ const Chart2: React.FC = () => {
     // eslint-disable-next-line no-eval
     const v = eval(`data${selectTab}`).x_data.length;
     if (v){
-      const n = 6 / v;
-      return parseInt(((1 - n) * 100).toFixed(), 10) + 5;
+      const n = (1 - (6 / v)) * 100;
+      if (n > 99) {
+        return parseFloat(n.toFixed(2)) + 0.05;
+      }
+      return parseInt(n.toFixed(), 10) + 5;
     }
     return 0;
   }
@@ -58,6 +61,7 @@ const Chart2: React.FC = () => {
       grid: {
         left: '3%',
         right: '4%',
+        top: 100,
         bottom: 80,
         containLabel: true,
       },

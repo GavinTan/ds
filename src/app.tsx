@@ -2,16 +2,15 @@ import type {Settings as LayoutSettings} from '@ant-design/pro-layout';
 import {PageLoading} from '@ant-design/pro-layout';
 import {notification} from 'antd';
 import type {RequestConfig, RunTimeLayoutConfig} from 'umi';
-import {getIntl, getLocale, history, Link} from 'umi';
+import {getIntl, getLocale, history} from 'umi';
 import RightContent from '@/components/RightContent';
 // import Footer from '@/components/Footer';
 import type {RequestOptionsInit, ResponseError} from 'umi-request';
-import {BookOutlined, LinkOutlined} from '@ant-design/icons';
 import {getUserData} from '@/services/api/user';
 import {decodeToken} from "react-jwt";
 import {getToken} from "@/utils/auth";
+import {stringify} from "querystring";
 
-const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/account/login';
 
 /** 获取用户信息比较慢的时候会展示一个 loading */
@@ -36,7 +35,12 @@ export async function getInitialState(): Promise<{
           return new Promise<API.UserResult | undefined>(resolve => resolve(res));
         });
       } catch (error) {
-        history.push(loginPath);
+        history.push({
+          pathname: loginPath,
+          search: stringify({
+            redirect: history.location.pathname
+          })
+        });
       }
     }
     return undefined;
@@ -130,7 +134,12 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
       const { location } = history;
       // 如果没有登录，重定向到 login
       if (!initialState?.currentUser && location.pathname !== loginPath) {
-        history.push(loginPath);
+        history.push({
+          pathname: loginPath,
+          search: stringify({
+            redirect: location.pathname
+          })
+        });
       }
     },
     links: [],
