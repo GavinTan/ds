@@ -244,7 +244,6 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                 'series_data': []
             }
 
-            variety_list = list(Variety.objects.filter(user_id=uid).order_by('create_time').values_list('id', flat=True)[:3])
             queryset = self.get_queryset().filter(user_id=uid).order_by('date')
             for i in queryset:
                 minuend_name = ''
@@ -257,7 +256,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                         if record:
                             price = record.price
 
-                    if price.isdigit():
+                    if isinstance(price, str) and price.isdigit():
                         price = int(price)
 
                     if 'category1' in e:
@@ -265,7 +264,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                         n = price
                     else:
                         price = n - price
-                        name = f'{i.variety.name}{minuend_name}-{category}'
+                        name = f'{i.variety.name}（{minuend_name}-{category}）'
                         if name not in data['legend_data']:
                             series = {'type': 'line', 'showSymbol': False, 'name': name, 'data': [price]}
                             data['legend_data'].append(name)
@@ -292,7 +291,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                             if list(variety_queryset).index(i.variety) == 2 and v_index == 3:
                                 subtrahend.append(q)
                     if list(variety_queryset).index(i.variety) == 3:
-                        break
+                        continue
 
                     for category in i.categories:
                         key_list = ['category1', 'category2']
@@ -305,7 +304,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                                     if record:
                                         price = record.price
 
-                                if price.isdigit():
+                                if isinstance(price, str) and price.isdigit():
                                     price = int(price)
 
                                 minuend = price
@@ -320,14 +319,16 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                                                     if record:
                                                         price = record.price
 
-                                                if price.isdigit():
+                                                if isinstance(price, str) and price.isdigit():
                                                     price = int(price)
 
-                                                name = f"{i.variety.name}{category.get(key)}-{s_category.get(key)}"
+                                                name = f"{i.variety.name}（{category.get(key)}-{s_category.get(key)}）"
+
                                                 if name not in data['legend_data']:
                                                     series = {'type': 'line', 'showSymbol': False, 'name': name, 'data': [minuend - price]}
                                                     data['series_data'].append(series)
                                                     data['legend_data'].append(name)
+
                                                 else:
                                                     for series in data['series_data']:
                                                         if series.get('name') == name:
@@ -356,7 +357,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                         if record:
                             price = record.price
 
-                    if price.isdigit():
+                    if isinstance(price, str) and price.isdigit():
                         price = int(price)
 
                     for c in select_category:
@@ -414,7 +415,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                         if record:
                             price = record.price
 
-                    if price.isdigit():
+                    if isinstance(price, str) and price.isdigit():
                         price = int(price)
 
                     for category in [item[key] for item in select_category for key in item]:
