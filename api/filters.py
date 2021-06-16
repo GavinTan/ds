@@ -10,10 +10,12 @@ class UserFilter(django_filters.FilterSet):
 
 
 class PriceDataFilter(django_filters.FilterSet):
+    categories = django_filters.CharFilter(lookup_expr='icontains')
+    user = django_filters.CharFilter(field_name='user__name')
 
     class Meta:
         model = PriceData
-        fields = ['variety', 'date']
+        fields = ['variety', 'date', 'categories', 'user']
 
 
 class VarietyFilter(django_filters.FilterSet):

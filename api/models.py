@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.functional import cached_property
 
 # Create your models here.
 
@@ -10,6 +11,7 @@ class User(AbstractUser):
     address = models.CharField(max_length=200, blank=True)
     role = models.JSONField(default=list)
     avatar = models.URLField(default='https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png')
+    limit_login_time = models.JSONField(default=list)
 
     # 登录使用字段
     USERNAME_FIELD = 'username'
@@ -19,6 +21,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = '用户列表'
         db_table = 'auth_user'
+        ordering = ['-date_joined']
 
 
 class Variety(models.Model):
@@ -30,6 +33,7 @@ class Variety(models.Model):
 
     class Meta:
         verbose_name = '种类列表'
+        ordering = ['-create_time']
 
 
 class PriceData(models.Model):
@@ -42,6 +46,26 @@ class PriceData(models.Model):
 
     class Meta:
         verbose_name = '价格数据'
+        ordering = ['-date']
+
+    @cached_property
+    def get_price(self):
+        data = {}
+        for i, e in enumerate(self.categories):
+            key = f'category{i + 1}'
+            category = e.get(key)
+            price = e.get('price')
+            if price is None:
+                record = InputPriceRecord.objects.filter(category=category, user=self.user).order_by('-date').first()
+                if record:
+                    price = record.price
+                else:
+                    price = 0
+
+            if isinstance(price, str) and price.isdigit():
+                price = int(price)
+            data[category] = (price, key)
+        return data
 
 
 class InputPriceRecord(models.Model):
