@@ -324,7 +324,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                     #                             for series in data['series_data']:
                     #                                 if series.get('name') == name:
                     #                                     series.get('data').append(minuend - price)
-            cdata = {}
+            cdata = {'a1': {}, 'a2': {}, 'b1': {}, 'b2': {}, 'c1': {}, 'c2': {}, 'd1': {}, 'd2': {}}
             name_list = ['a', 'b', 'c', 'd']
             for i in tmp_data['series_data']:
                 key = i.get('k')
@@ -337,100 +337,106 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                         cdata[f"{name_list[i.get('v')]}2"] = idata
 
             for k, v in cdata.items():
-                minuend = v.get('data')
+                minuend = v.get('data', [])
                 if k == 'a1':
                     for i in ['b1', 'c1', 'd1']:
                         name = f"{cdata[k].get('vname')}（{cdata[k].get('name')}-{cdata[i].get('name')}）"
                         subtrahend = cdata[i].get('data', [])
-                        if len(minuend) != len(subtrahend):
-                            if len(subtrahend) < len(minuend):
-                                for c in range(len(minuend) - len(subtrahend)):
-                                    subtrahend.append(0)
-                            else:
-                                for c in range(len(subtrahend) - len(minuend)):
-                                    minuend.append(0)
-                        series = {'type': 'line', 'showSymbol': False, 'name': name,
-                                  'data': numpy.array(minuend) - numpy.array(subtrahend)}
-                        data['series_data'].append(series)
-                        data['legend_data'].append(name)
+                        if subtrahend:
+                            if len(minuend) != len(subtrahend):
+                                if len(subtrahend) < len(minuend):
+                                    for c in range(len(minuend) - len(subtrahend)):
+                                        subtrahend.append(0)
+                                else:
+                                    for c in range(len(subtrahend) - len(minuend)):
+                                        minuend.append(0)
+                            series = {'type': 'line', 'showSymbol': False, 'name': name,
+                                      'data': numpy.array(minuend) - numpy.array(subtrahend)}
+                            data['series_data'].append(series)
+                            data['legend_data'].append(name)
                 if k == 'a2':
                     for i in ['b2', 'c2', 'd2']:
                         name = f"{cdata[k].get('vname')}（{cdata[k].get('name')}-{cdata[i].get('name')}）"
                         subtrahend = cdata[i].get('data', [])
-                        if len(minuend) != len(subtrahend):
-                            if len(subtrahend) < len(minuend):
-                                for c in range(len(minuend) - len(subtrahend)):
-                                    subtrahend.append(0)
-                            else:
-                                for c in range(len(subtrahend) - len(minuend)):
-                                    minuend.append(0)
-                        series = {'type': 'line', 'showSymbol': False, 'name': name,
-                                  'data': numpy.array(minuend) - numpy.array(subtrahend)}
-                        data['series_data'].append(series)
-                        data['legend_data'].append(name)
+                        if subtrahend:
+                            if len(minuend) != len(subtrahend):
+                                if len(subtrahend) < len(minuend):
+                                    for c in range(len(minuend) - len(subtrahend)):
+                                        subtrahend.append(0)
+                                else:
+                                    for c in range(len(subtrahend) - len(minuend)):
+                                        minuend.append(0)
+                            series = {'type': 'line', 'showSymbol': False, 'name': name,
+                                      'data': numpy.array(minuend) - numpy.array(subtrahend)}
+                            data['series_data'].append(series)
+                            data['legend_data'].append(name)
 
                 if k == 'b1':
                     for i in ['c1', 'd1']:
                         name = f"{cdata[k].get('vname')}（{cdata[k].get('name')}-{cdata[i].get('name')}）"
                         subtrahend = cdata[i].get('data', [])
-                        if len(minuend) != len(subtrahend):
-                            if len(subtrahend) < len(minuend):
-                                for c in range(len(minuend) - len(subtrahend)):
-                                    subtrahend.append(0)
-                            else:
-                                for c in range(len(subtrahend) - len(minuend)):
-                                    minuend.append(0)
-                        series = {'type': 'line', 'showSymbol': False, 'name': name,
-                                  'data': numpy.array(minuend) - numpy.array(subtrahend)}
-                        data['series_data'].append(series)
-                        data['legend_data'].append(name)
+                        if subtrahend:
+                            if len(minuend) != len(subtrahend):
+                                if len(subtrahend) < len(minuend):
+                                    for c in range(len(minuend) - len(subtrahend)):
+                                        subtrahend.append(0)
+                                else:
+                                    for c in range(len(subtrahend) - len(minuend)):
+                                        minuend.append(0)
+                            series = {'type': 'line', 'showSymbol': False, 'name': name,
+                                      'data': numpy.array(minuend) - numpy.array(subtrahend)}
+                            data['series_data'].append(series)
+                            data['legend_data'].append(name)
 
                 if k == 'b2':
                     for i in ['c2', 'd2']:
                         name = f"{cdata[k].get('vname')}（{cdata[k].get('name')}-{cdata[i].get('name')}）"
                         subtrahend = cdata[i].get('data', [])
-                        if len(minuend) != len(subtrahend):
-                            if len(subtrahend) < len(minuend):
-                                for c in range(len(minuend) - len(subtrahend)):
-                                    subtrahend.append(0)
-                            else:
-                                for c in range(len(subtrahend) - len(minuend)):
-                                    minuend.append(0)
-                        series = {'type': 'line', 'showSymbol': False, 'name': name,
-                                  'data': numpy.array(minuend) - numpy.array(subtrahend)}
-                        data['series_data'].append(series)
-                        data['legend_data'].append(name)
+                        if subtrahend:
+                            if len(minuend) != len(subtrahend):
+                                if len(subtrahend) < len(minuend):
+                                    for c in range(len(minuend) - len(subtrahend)):
+                                        subtrahend.append(0)
+                                else:
+                                    for c in range(len(subtrahend) - len(minuend)):
+                                        minuend.append(0)
+                            series = {'type': 'line', 'showSymbol': False, 'name': name,
+                                      'data': numpy.array(minuend) - numpy.array(subtrahend)}
+                            data['series_data'].append(series)
+                            data['legend_data'].append(name)
                 if k == 'c1':
                     for i in ['d1']:
                         name = f"{cdata[k].get('vname')}（{cdata[k].get('name')}-{cdata[i].get('name')}）"
                         subtrahend = cdata[i].get('data', [])
-                        if len(minuend) != len(subtrahend):
-                            if len(subtrahend) < len(minuend):
-                                for c in range(len(minuend) - len(subtrahend)):
-                                    subtrahend.append(0)
-                            else:
-                                for c in range(len(subtrahend) - len(minuend)):
-                                    minuend.append(0)
-                        series = {'type': 'line', 'showSymbol': False, 'name': name,
-                                  'data': numpy.array(minuend) - numpy.array(subtrahend)}
-                        data['series_data'].append(series)
-                        data['legend_data'].append(name)
+                        if subtrahend:
+                            if len(minuend) != len(subtrahend):
+                                if len(subtrahend) < len(minuend):
+                                    for c in range(len(minuend) - len(subtrahend)):
+                                        subtrahend.append(0)
+                                else:
+                                    for c in range(len(subtrahend) - len(minuend)):
+                                        minuend.append(0)
+                            series = {'type': 'line', 'showSymbol': False, 'name': name,
+                                      'data': numpy.array(minuend) - numpy.array(subtrahend)}
+                            data['series_data'].append(series)
+                            data['legend_data'].append(name)
 
                 if k == 'c2':
                     for i in ['d2']:
                         name = f"{cdata[k].get('vname')}（{cdata[k].get('name')}-{cdata[i].get('name')}）"
                         subtrahend = cdata[i].get('data', [])
-                        if len(minuend) != len(subtrahend):
-                            if len(subtrahend) < len(minuend):
-                                for c in range(len(minuend) - len(subtrahend)):
-                                    subtrahend.append(0)
-                            else:
-                                for c in range(len(subtrahend) - len(minuend)):
-                                    minuend.append(0)
-                        series = {'type': 'line', 'showSymbol': False, 'name': name,
-                                  'data': numpy.array(minuend) - numpy.array(subtrahend)}
-                        data['series_data'].append(series)
-                        data['legend_data'].append(name)
+                        if subtrahend:
+                            if len(minuend) != len(subtrahend):
+                                if len(subtrahend) < len(minuend):
+                                    for c in range(len(minuend) - len(subtrahend)):
+                                        subtrahend.append(0)
+                                else:
+                                    for c in range(len(subtrahend) - len(minuend)):
+                                        minuend.append(0)
+                            series = {'type': 'line', 'showSymbol': False, 'name': name,
+                                      'data': numpy.array(minuend) - numpy.array(subtrahend)}
+                            data['series_data'].append(series)
+                            data['legend_data'].append(name)
 
             return Response(data)
 
