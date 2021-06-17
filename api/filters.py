@@ -21,7 +21,8 @@ class PriceDataFilter(django_filters.FilterSet):
 class VarietyFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(lookup_expr='icontains')
     categories = django_filters.CharFilter(lookup_expr='icontains')
+    user = django_filters.CharFilter(field_name='user__name')
 
     class Meta:
         model = Variety
-        fields = ['name', 'categories']
+        fields = ['name', 'categories', 'user']

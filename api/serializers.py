@@ -49,6 +49,7 @@ class VarietySerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        representation['user'] = instance.user.name
         return representation
 
 
