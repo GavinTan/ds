@@ -127,7 +127,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
             if user.is_superuser:
                 queryset = self.get_queryset()
 
-        self.queryset = queryset.order_by('date')
+        self.queryset = queryset
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -247,9 +247,8 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                 'series_data': []
             }
 
-            variety_queryset = Variety.objects.all().filter(user_id=uid).order_by('create_time').values_list('id',
-                                                                                                             flat=True)[
-                               :4]
+            variety_queryset = Variety.objects.all().filter(user_id=uid).order_by(
+                'create_time').values_list('id', flat=True)[:4]
             queryset = self.get_queryset().prefetch_related('variety').filter(user_id=uid).order_by('date')
             tmp_data = {
                 'x_data': [],
@@ -267,7 +266,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                     key = i.get_price.get(category)[1]
                     price = i.get_price.get(category)[0]
 
-                    if category not in tmp_data['legend_data']:
+                    if category not in tmp_data['legend_data'] and variety_id in variety_queryset:
                         series = {'name': category, 'v': list(variety_queryset).index(variety_id),
                                   'vname': i.variety.name, 'k': key, 'data': [price]}
                         tmp_data['legend_data'].append(category)
@@ -283,7 +282,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                     else:
                         price = n - price
                         name = f'{i.variety.name}（{minuend_name}-{category}）'
-                        if name not in data['legend_data']:
+                        if name not in data['legend_data'] and variety_id in variety_queryset:
                             series = {'type': 'line', 'showSymbol': False, 'name': name, 'data': [price]}
                             data['legend_data'].append(name)
                             data['series_data'].append(series)
