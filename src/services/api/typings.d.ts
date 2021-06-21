@@ -11,6 +11,7 @@ declare namespace API {
     email?: string;
     country?: string;
     role?: string[];
+    limit_login_time?: number[];
     address?: string;
     phone?: string;
     last_login?: string;
@@ -70,9 +71,10 @@ declare namespace API {
   }
 
   type ChartData = {
-    x_data?: [];
-    legend_data?: [];
-    series_data?: SeriesData[];
+    x_data: [];
+    legend_data: [];
+    series_data: SeriesData[];
+    n?: {};
     tag?: string;
     tag_variety?: boolean;
   }

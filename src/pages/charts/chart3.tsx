@@ -6,28 +6,29 @@ import {PageContainer} from "@ant-design/pro-layout";
 import {useModel} from "@@/plugin-model/useModel";
 
 const Chart3: React.FC = () => {
-  const [data, setData] = useState<API.ChartData>({})
+  const [data, setData] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
   const {initialState} = useModel<any>('@@initialState');
   const echartsRef = useRef<any>(null);
+  const [start, setStart] = useState<number>(1)
+  const [end, setEnd] = useState<number>(100)
 
   useEffect(() => {
-    echartsRef.current?.getEchartsInstance().showLoading()
-    actionPriceData({a: 'get_chart3_data'}, {data: {uid: initialState.currentUser.id}}).then((res) => {
-      setData(res)
-      echartsRef.current?.getEchartsInstance().hideLoading()
-    })
-  }, [])
+    let mounted = true;
 
-  const start = () => {
-    if (data.x_data?.length){
-      const n = (1 - (6 / data.x_data.length)) * 100;
-      if (n > 99) {
-        return parseFloat(n.toFixed(2)) + 0.05;
+    echartsRef.current?.getEchartsInstance().showLoading();
+    actionPriceData({a: 'get_chart3_data'}, {data: {uid: initialState.currentUser.id}}).then(async (res) => {
+      if (mounted) {
+        setData(res);
+        setStart(res.x_data.length - 10);
+        setEnd(res.x_data.length);
       }
-      return parseInt(n.toFixed(), 10) + 5;
+      echartsRef.current?.getEchartsInstance().hideLoading();
+    })
+
+    return () => {
+      mounted = false;
     }
-    return 0;
-  }
+  }, [])
 
   const options = {
     title: {
@@ -38,18 +39,19 @@ const Chart3: React.FC = () => {
       formatter: (params: any) => {
         let name = ''
         let html = ''
-        const length: number[] = []
+        const seriesNameLength: number[] = []
         params.forEach((e: any, i: any) => {
-          length.push(e.seriesName.length)
           name = e.name
+          seriesNameLength.push(e.seriesName.length)
           html += `
               <div style="display: block;height:20px;${i % 2 === 0 ? 'width: 50%;' : 'width: 50%;'}float:left;">
                   <i style="width: 10px;height: 10px;display: inline-block;background: ${e.color};border-radius: 10px;"></i>
-                  <span>${e.seriesName}<b style="float: right;margin-right: 20px;">${e.data}</b></span>
+                  <span>${e.seriesName}<b style="float: right;margin-right: 10px">${e.data}</b></span>
               </div>
           `
         })
-        return `<div style="width: ${Math.max(...length) * 10 + 300}px;"><span>${name}</span><br>${html}<div>`
+        return `<div style="width: ${Math.max(...seriesNameLength) * 16 * 2 + 40}px;"><span>${name}</span><br>${html}<div>`
+
       },
 
     },
@@ -57,8 +59,8 @@ const Chart3: React.FC = () => {
       data: data.legend_data
     },
     grid: {
-      left: '3%',
-      right: '4%',
+      left: 60,
+      right: 90,
       top: 100,
       bottom: 80,
       containLabel: true,
@@ -92,8 +94,8 @@ const Chart3: React.FC = () => {
         }
       },
       brushSelect: true,
-      start: start(),
-      end: 100
+      startValue: data.x_data.length - 11,
+      endValue: data.x_data.length - 1
     }, {
       type: 'inside'
     }],
@@ -102,7 +104,24 @@ const Chart3: React.FC = () => {
   return (
     <PageContainer>
       <Card>
-        <ReactECharts option={options} ref={echartsRef} style={{height: 'calc(100vh - 250px)'}}/>
+        <ReactECharts option={options} ref={echartsRef} style={{height: 'calc(100vh - 250px)'}} onEvents={{
+          dataZoom: () => {
+            // const {startValue, endValue} = echartsRef.current.getEchartsInstance().getOption().dataZoom[0];
+            // const axis = echartsRef.current.getEchartsInstance().getModel().option.xAxis[0];
+            // const startDate = axis.data[startValue];
+            // const endDate = axis.data[endValue];
+
+          //   echartsRef.current?.getEchartsInstance().showLoading()
+          //   actionPriceData({a: 'get_chart3_data'}, {data: {
+          //       uid: initialState.currentUser.id,
+          //       start_date: startDate,
+          //       end_date: endDate
+          //   }}).then((res) => {
+          //       setData(res)
+          //     echartsRef.current?.getEchartsInstance().hideLoading()
+          //   })
+          }
+        }}/>
       </Card>
     </PageContainer>
   );

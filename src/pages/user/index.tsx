@@ -227,6 +227,10 @@ const UserList: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
+        pagination={{
+          defaultPageSize: 10,
+          pageSizeOptions: ['10', '20', '50', '100'],
+        }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -296,7 +300,7 @@ const UserList: React.FC = () => {
         handleCreateModalVisible={setCreateModalVisible}
         values={currentRow || {}}
       />
-      <UpdateForm
+      {updateModalVisible && <UpdateForm
         onSubmit={async (value) => {
           const success = await handleUpdate(value);
 
@@ -316,7 +320,7 @@ const UserList: React.FC = () => {
         updateModalVisible={updateModalVisible}
         handleUpdateModalVisible={setUpdateModalVisible}
         values={currentRow || {}}
-      />
+      />}
 
       <Drawer
         width={600}

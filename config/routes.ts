@@ -42,31 +42,36 @@
     icon: 'LineChartOutlined',
     routes: [
       {
-        name: '图表1',
-        path: '/charts/chart1',
-        access: 'user',
-        component: './charts/chart1',
+        name: '数据展示区',
+        path: '/charts/data/',
+        routes: [
+          {
+            name: '图1-1',
+            path: '/charts/data/chart1',
+            access: 'user',
+            component: './charts/chart1',
+          },
+          {
+            name: '图1-2',
+            path: '/charts/data/chart2',
+            access: 'user',
+            component: './charts/chart2',
+          }]
       },
       {
-        name: '图表2',
-        path: '/charts/chart2',
-        access: 'user',
-        component: './charts/chart2',
-      },
-      {
-        name: '图表3',
+        name: '基差图',
         path: '/charts/chart3',
         access: 'user',
         component: './charts/chart3',
       },
       {
-        name: '图表4',
+        name: '数据段差图',
         path: '/charts/chart4',
         access: 'user',
         component: './charts/chart4',
       },
       {
-        name: '图表5',
+        name: '补基差图',
         path: '/charts/chart5',
         access: 'user',
         component: './charts/chart5',

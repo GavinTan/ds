@@ -48,7 +48,7 @@ const CreateForm: React.FC<CreateFormProps> = (props) => {
                 key={key}
                 name={[name, `category${name + 1}`]}
                 fieldKey={fieldKey}
-                rules={[{required: true, whitespace: true, message: '请输入名称'}]}
+                rules={[{required: true, whitespace: true, message: `请输入类别${name + 1}`}]}
                 label={`类别${name + 1}`}
                 width="md"
               />

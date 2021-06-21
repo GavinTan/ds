@@ -2,18 +2,18 @@ import {
   LockOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Alert, message } from 'antd';
-import React, { useState } from 'react';
-import ProForm, { ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
-import { Link, history } from 'umi';
-import { login } from '@/services/api/user';
+import {Alert, message} from 'antd';
+import React, {useState} from 'react';
+import ProForm, {ProFormCheckbox, ProFormText} from '@ant-design/pro-form';
+import {Link, history} from 'umi';
+import {login} from '@/services/api/user';
 import styles from './index.less';
 import {useModel} from "@@/plugin-model/useModel";
 import {getToken, setToken} from "@/utils/auth";
 
 const LoginMessage: React.FC<{
   content: string;
-}> = ({ content }) => (
+}> = ({content}) => (
   <Alert
     style={{
       marginBottom: 24,
@@ -28,8 +28,8 @@ const LoginMessage: React.FC<{
 const goto = () => {
   if (!history) return;
   setTimeout(() => {
-    const { query } = history.location;
-    const { redirect } = query as {
+    const {query} = history.location;
+    const {redirect} = query as {
       redirect: string;
     };
     history.push(redirect || '/');
@@ -39,13 +39,27 @@ const goto = () => {
 const Login: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
-  const { initialState, setInitialState } = useModel('@@initialState');
+  const {initialState, setInitialState} = useModel('@@initialState');
+  const {
+    setData1: chart5SetData1,
+    setData2: chart5SetData2,
+    setData3: chart5SetData3,
+    setData4: chart5SetData4,
+    setTmpData: chart5SetTmpData
+  } = useModel('chart5')
+  const {
+    setData1: chart4SetData1,
+    setData2: chart4SetData2,
+    setData3: chart4SetData3,
+    setTmpData: chart4SetTmpData
+  } = useModel('chart4')
+
 
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
 
     if (userInfo) {
-      setInitialState({ ...initialState, currentUser: userInfo });
+      setInitialState({...initialState, currentUser: userInfo});
     }
   };
 
@@ -54,13 +68,31 @@ const Login: React.FC = () => {
 
     try {
       // 登录
-      const res = await login({ ...values });
+      const res = await login({...values});
       if (res.success && res.token) {
         if (values.autoLogin) {
           setToken(res.token, 7)
         } else {
           setToken(res.token)
         }
+
+        chart5SetData1({legend_data: [], x_data: [], series_data: [], n: {}})
+        chart5SetData2({legend_data: [], x_data: [], series_data: [], n: {}})
+        chart5SetData3({legend_data: [], x_data: [], series_data: [], n: {}})
+        chart5SetData4({legend_data: [], x_data: [], series_data: [], n: {}})
+        chart5SetTmpData([{
+          tab: '1',
+          selectCategory: ['1', '2', '3'],
+          date: ''
+        }])
+        chart4SetData1({legend_data: [], x_data: [], series_data: []})
+        chart4SetData2({legend_data: [], x_data: [], series_data: []})
+        chart4SetData3({legend_data: [], x_data: [], series_data: []})
+        chart4SetTmpData([{
+          tab: '1',
+          selectCategory: ['1', '2'],
+          date: ''
+        }])
         message.success("登录成功");
         await fetchUserInfo();
         goto();
@@ -123,7 +155,7 @@ const Login: React.FC = () => {
                   name="username"
                   fieldProps={{
                     size: 'large',
-                    prefix: <UserOutlined className={styles.prefixIcon} />,
+                    prefix: <UserOutlined className={styles.prefixIcon}/>,
                   }}
                   placeholder="用户名"
                   rules={[
@@ -137,7 +169,7 @@ const Login: React.FC = () => {
                   name="password"
                   fieldProps={{
                     size: 'large',
-                    prefix: <LockOutlined className={styles.prefixIcon} />,
+                    prefix: <LockOutlined className={styles.prefixIcon}/>,
                   }}
                   placeholder="密码"
                   rules={[

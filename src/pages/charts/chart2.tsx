@@ -1,11 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Button, Card, Form, Select, Tabs} from "antd";
+import {Button, Card, DatePicker, Form, Select, Tabs} from "antd";
 import ReactECharts from "echarts-for-react";
 import {actionPriceData} from "@/services/api/pricedata";
 import {actionVariety} from "@/services/api/variety";
 import {useModel} from "@@/plugin-model/useModel";
 import {PageContainer} from "@ant-design/pro-layout";
 import {ProFormText} from "@ant-design/pro-form";
+import moment from "moment";
 
 const {TabPane} = Tabs;
 
@@ -21,30 +22,26 @@ const Chart2: React.FC = () => {
   const [tmpData] = useState<{ tab: string, selectCategory: string[] }[]>([{tab: '1', selectCategory: []}])
 
   useEffect(() => {
-    echartsRef.current?.getEchartsInstance().showLoading()
+    let mounted = true;
+    echartsRef.current?.getEchartsInstance().showLoading();
     actionPriceData({a: 'get_chart1_data'}, {data: {uid: initialState.currentUser.id}}).then((res) => {
-      setData1(res)
-      setData2(res)
-      setData3(res)
-      echartsRef.current?.getEchartsInstance().hideLoading()
+      if (mounted) {
+        setData1(res);
+        setData2(res);
+        setData3(res);
+      }
+      echartsRef.current?.getEchartsInstance().hideLoading();
     })
     actionVariety({a: 'get_select_category_list'}, {data: {uid: initialState.currentUser.id}}).then((res) => {
-      setSelectCategoryList(res.data)
-    })
-  }, [])
-
-  const start = () => {
-    // eslint-disable-next-line no-eval
-    const v = eval(`data${selectTab}`).x_data.length;
-    if (v){
-      const n = (1 - (6 / v)) * 100;
-      if (n > 99) {
-        return parseFloat(n.toFixed(2)) + 0.05;
+      if (mounted) {
+        setSelectCategoryList(res.data);
       }
-      return parseInt(n.toFixed(), 10) + 5;
+    })
+
+    return () => {
+      mounted = false;
     }
-    return 0;
-  }
+  }, [])
 
   const getOption = (key: string) => {
     return {
@@ -59,8 +56,8 @@ const Chart2: React.FC = () => {
         data: eval(`data${key}`).legend_data
       },
       grid: {
-        left: '3%',
-        right: '4%',
+        left: 60,
+        right: 90,
         top: 100,
         bottom: 80,
         containLabel: true,
@@ -96,8 +93,10 @@ const Chart2: React.FC = () => {
           }
         },
         brushSelect: true,
-        start: start(),
-        end: 100
+        // eslint-disable-next-line no-eval
+        startValue: eval(`data${selectTab}`).x_data.length - 11,
+        // eslint-disable-next-line no-eval
+        endValue: eval(`data${selectTab}`).x_data.length - 1
       }, {
         type: 'inside'
       }],
@@ -172,6 +171,13 @@ const Chart2: React.FC = () => {
                   mode="multiple"
                   style={{width: 200}} placeholder="请选择"
                   options={selectCategoryList}
+                />
+              </Form.Item>
+              <Form.Item
+                name="dateRange"
+              >
+                <DatePicker.RangePicker
+                  disabledDate={(current) => {return [6, 7].indexOf(moment(current).isoWeekday()) !== -1}}
                 />
               </Form.Item>
               <Form.Item>

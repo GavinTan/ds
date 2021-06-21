@@ -1,33 +1,34 @@
 import React, {useEffect, useRef, useState} from 'react';
 import ReactECharts from 'echarts-for-react';
-import {Card} from "antd";
+import {Card, Form, DatePicker, Button} from "antd";
 import {actionPriceData} from "@/services/api/pricedata";
 import {PageContainer} from "@ant-design/pro-layout";
 import {useModel} from "@@/plugin-model/useModel";
+import ProFrom, {ProFormDateRangePicker, ProFormText} from "@ant-design/pro-form";
+import moment from "moment";
+
+const { RangePicker } = DatePicker;
 
 const Chart1: React.FC = () => {
-  const [data, setData] = useState<API.ChartData>({});
+  const [data, setData] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []});
   const {initialState} = useModel<any>('@@initialState');
   const echartsRef = useRef<any>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     echartsRef.current?.getEchartsInstance().showLoading();
     actionPriceData({a: 'get_chart1_data'}, {data: {uid: initialState.currentUser.id}}).then((res) => {
-      setData(res);
+      if (mounted) {
+        setData(res);
+      }
       echartsRef.current?.getEchartsInstance().hideLoading();
     })
-  }, [])
 
-  const start = () => {
-    if (data.x_data?.length){
-      const n = (1 - (6 / data.x_data.length)) * 100;
-      if (n > 99) {
-        return parseFloat(n.toFixed(2)) + 0.05;
-      }
-      return parseInt(n.toFixed(), 10) + 5;
+    return () => {
+      mounted = false;
     }
-    return 0;
-  }
+  }, [])
 
   const options = {
     title: {
@@ -40,8 +41,8 @@ const Chart1: React.FC = () => {
       data: data.legend_data
     },
     grid: {
-      left: '6%',
-      right: '6%',
+      left: 60,
+      right: 90,
       top: 100,
       bottom: 80,
       containLabel: true,
@@ -75,8 +76,8 @@ const Chart1: React.FC = () => {
         }
       },
       brushSelect: true,
-      start: start(),
-      end: 100
+      startValue: data.x_data.length - 11,
+      endValue: data.x_data.length - 1
     }, {
       type: 'inside'
     }],
@@ -84,9 +85,39 @@ const Chart1: React.FC = () => {
 
   return (
     <PageContainer>
-    <Card>
-      <ReactECharts option={options} ref={echartsRef} style={{height: 'calc(100vh - 250px)'}}/>
-    </Card>
+      <Card extra={
+        <Form
+          layout="inline"
+          onFinish={(values) => {
+            echartsRef.current.getEchartsInstance().showLoading()
+            actionPriceData({a: 'get_chart1_data'}, {data: values}).then((res) => {
+              setData(res)
+              echartsRef.current.getEchartsInstance().hideLoading()
+            })
+          }}
+        >
+          <ProFormText
+            name="uid"
+            initialValue={initialState.currentUser.id}
+            hidden
+          />
+          <Form.Item
+            name="dateRange"
+          >
+            <RangePicker
+              disabledDate={(current) => {return [6, 7].indexOf(moment(current).isoWeekday()) !== -1}}
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              查看
+            </Button>
+          </Form.Item>
+        </Form>
+      }
+      >
+        <ReactECharts option={options} ref={echartsRef} style={{height: 'calc(100vh - 320px)'}}/>
+      </Card>
     </PageContainer>
   );
 };

@@ -1,5 +1,5 @@
 import type { FormInstance} from 'antd';
-import {Button, message, Drawer} from 'antd';
+import {Button, message, Drawer, Tag} from 'antd';
 import React, {useState, useRef, useEffect} from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
@@ -109,8 +109,9 @@ const PriceList: React.FC = () => {
 
   const columns: ProColumns<API.PriceDataResult>[] = [
     {
-      title: '种类',
+      title: '品种',
       dataIndex: 'variety',
+      align: "center",
       render: (dom, entity) => {
         return (
           <a
@@ -134,10 +135,44 @@ const PriceList: React.FC = () => {
       },
     },
     {
+      title: '价格',
+      dataIndex: 'categories',
+      align: "center",
+      render: (text: any) => {
+        return text.map((value: any, index: number) => {
+          return <Tag key={`category${index + 1}`}>{value[`category${index + 1}`]}: {value.price}￥</Tag>
+        })
+      },
+      fieldProps: {
+        onChange: (e: any) => {
+          if (e.target.value === '') {
+            if (formRef.current) {
+              formRef.current.submit();
+            }
+          }
+        },
+      },
+    },
+    {
       title: '日期',
       dataIndex: 'date',
-      valueType: 'date',
-      sorter: (a, b) => moment(a.date).unix() - moment(b.date).unix()
+      valueType: 'date'
+    },
+    {
+      title: '用户',
+      dataIndex: 'user',
+      hideInTable: initialState?.currentUser?.is_superuser === false,
+      hideInSearch: initialState?.currentUser?.is_superuser === false,
+      hideInForm: initialState?.currentUser?.is_superuser === false,
+      fieldProps: {
+        onChange: (e: any) => {
+          if (e.target.value === '') {
+            if (formRef.current) {
+              formRef.current.submit();
+            }
+          }
+        },
+      },
     },
     {
       title: '操作',
@@ -165,6 +200,10 @@ const PriceList: React.FC = () => {
         rowKey="id"
         search={{
           labelWidth: 120,
+        }}
+        pagination={{
+          defaultPageSize: 10,
+          pageSizeOptions: ['10', '20', '50', '100'],
         }}
         toolBarRender={() => [
           <Button

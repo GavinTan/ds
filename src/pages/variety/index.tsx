@@ -132,12 +132,27 @@ const VarietyList: React.FC = () => {
       },
     },
     {
-      title: '添加日期',
+      title: '用户',
+      dataIndex: 'user',
+      hideInTable: initialState?.currentUser?.is_superuser === false,
+      hideInSearch: initialState?.currentUser?.is_superuser === false,
+      hideInForm: initialState?.currentUser?.is_superuser === false,
+      fieldProps: {
+        onChange: (e: any) => {
+          if (e.target.value === '') {
+            if (formRef.current) {
+              formRef.current.submit();
+            }
+          }
+        },
+      },
+    },
+    {
+      title: '添加时间',
       dataIndex: 'create_time',
       valueType: 'dateTime',
       align: "center",
-      search: false,
-      sorter: (a, b) => moment(a.create_time).unix() - moment(b.create_time).unix()
+      search: false
     },
     {
       title: '操作',
@@ -170,6 +185,10 @@ const VarietyList: React.FC = () => {
         rowKey="id"
         search={{
           labelWidth: 120,
+        }}
+        pagination={{
+          defaultPageSize: 10,
+          pageSizeOptions: ['10', '20', '50', '100'],
         }}
         toolBarRender={() => [
           <Button

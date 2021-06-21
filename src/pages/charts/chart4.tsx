@@ -13,37 +13,30 @@ const {TabPane} = Tabs;
 const Chart4: React.FC = () => {
   const [selectCategoryList, setSelectCategoryList] = useState([])
   const {initialState} = useModel<any>('@@initialState');
-  const [data1, setData1] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
-  const [data2, setData2] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
-  const [data3, setData3] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
-  const [data4, setData4] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
+  // const [data1, setData1] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
+  // const [data2, setData2] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
+  // const [data3, setData3] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
   const echartsRef = useRef<any>(null);
   const [selectTab, setSelectTab] = useState<string>('1')
   const [form] = Form.useForm()
-  const [tmpData] = useState<{ tab: string, selectCategory: string[], date: string }[]>([{
-    tab: '1',
-    selectCategory: ['1', '2'],
-    date: ''
-  }])
+  const {data1, data2, data3, setData1, setData2, setData3, tmpData} = useModel('chart4')
+
 
   useEffect(() => {
     actionVariety({a: 'get_select_category_list'}, {data: {uid: initialState.currentUser.id}}).then((res) => {
       setSelectCategoryList(res.data)
     })
-  }, [])
-
-  const start = () => {
-    // eslint-disable-next-line no-eval
-    const v = eval(`data${selectTab}`).x_data.length;
-    if (v){
-      const n = (1 - (6 / v)) * 100;
-      if (n > 99) {
-        return parseFloat(n.toFixed(2)) + 0.05;
+    const isExist = tmpData.some((v) => {
+      if (v.tab === selectTab) {
+        form.setFieldsValue({selectCategory: v.selectCategory, date: v.date})
       }
-      return parseInt(n.toFixed(), 10) + 5;
+      return v.tab === selectTab
+    })
+
+    if (!isExist) {
+      form.setFieldsValue({selectCategory: [1, 2], date: ''})
     }
-    return 0;
-  }
+  }, [])
 
   const getOption = (key: string) => {
     return {
@@ -58,8 +51,8 @@ const Chart4: React.FC = () => {
         data: eval(`data${key}`).legend_data
       },
       grid: {
-        left: '3%',
-        right: '4%',
+        left: 60,
+        right: 90,
         top: 100,
         bottom: 80,
         containLabel: true,
@@ -95,8 +88,10 @@ const Chart4: React.FC = () => {
           }
         },
         brushSelect: true,
-        start: start(),
-        end: 100
+        // eslint-disable-next-line no-eval
+        startValue: eval(`data${selectTab}`).x_data.length - 11,
+        // eslint-disable-next-line no-eval
+        endValue: eval(`data${selectTab}`).x_data.length - 1
       }, {
         type: 'inside'
       }],
@@ -174,6 +169,7 @@ const Chart4: React.FC = () => {
                           fieldKey={[fieldKey, selectTab]}
                           rules={[{required: true, message: "至少选择一项"}]}
                           validateTrigger={[]}
+                          label={key === 0 ? '主线' : '副线'}
                         >
                           <Select
                             style={{width: 128}} placeholder="请选择"
