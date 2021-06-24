@@ -477,6 +477,8 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                                     data['x_data'].append(i.date)
                                 if category not in data['legend_data']:
                                     series = {'type': 'line', 'showSymbol': False, 'name': category, 'data': [price]}
+                                    if k == 'category2':
+                                        series['itemStyle'] = {'normal': {'lineStyle': {'type': 'dotted'}}}
                                     data['legend_data'].append(category)
                                     data['series_data'].append(series)
                                 else:
@@ -531,6 +533,11 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                             if i.date == parse_datetime(select_date).date():
                                 data['n'][category] = price
                             else:
+                                c = data['n'].get(category, 0) - price
+                                if data['n'].get(category, 0) > price:
+                                    price = -abs(c)
+                                else:
+                                    price = abs(c)
                                 if i.date not in data['x_data']:
                                     data['x_data'].append(i.date)
 
@@ -542,12 +549,6 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                                     for series in data['series_data']:
                                         if series.get('name') == category:
                                             series.get('data').append(price)
-                            # else:
-                            #     c = n.get(category, 0) - price
-                            #     if n.get(category, 0) > price:
-                            #         price = -abs(c)
-                            #     else:
-                            #         price = abs(c)
 
             return Response(data)
 
