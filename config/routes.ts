@@ -65,13 +65,13 @@
         component: './charts/chart3',
       },
       {
-        name: '数据段差图',
+        name: '补基差图',
         path: '/charts/chart4',
         access: 'user',
         component: './charts/chart4',
       },
       {
-        name: '补基差图',
+        name: '数据段差图',
         path: '/charts/chart5',
         access: 'user',
         component: './charts/chart5',

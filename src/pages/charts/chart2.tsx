@@ -119,6 +119,7 @@ const Chart2: React.FC = () => {
     <PageContainer>
       <Card>
         <Tabs
+          style={{overflow: 'visible'}}
           onChange={(activeKey) => {
             setSelectTab(activeKey)
             const isExist = tmpData.some((v) => {

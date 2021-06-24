@@ -1,9 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import ReactECharts from 'echarts-for-react';
-import {Card} from "antd";
+import {Card, Tabs} from "antd";
 import {actionPriceData} from "@/services/api/pricedata";
 import {PageContainer} from "@ant-design/pro-layout";
 import {useModel} from "@@/plugin-model/useModel";
+
+const {TabPane} = Tabs;
 
 const Chart3: React.FC = () => {
   const [data, setData] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
@@ -101,10 +103,10 @@ const Chart3: React.FC = () => {
     }],
   };
 
-  return (
-    <PageContainer>
-      <Card>
-        <ReactECharts option={options} ref={echartsRef} style={{height: 'calc(100vh - 250px)'}} onEvents={{
+  const Tab = (index: number) => {
+    return (
+      <TabPane tab={`Tab${index}`} key={index}>
+        <ReactECharts option={options} ref={echartsRef} style={{height: 'calc(100vh - 320px)'}} onEvents={{
           dataZoom: () => {
             // const {startValue, endValue} = echartsRef.current.getEchartsInstance().getOption().dataZoom[0];
             // const axis = echartsRef.current.getEchartsInstance().getModel().option.xAxis[0];
@@ -122,6 +124,18 @@ const Chart3: React.FC = () => {
           //   })
           }
         }}/>
+      </TabPane>
+    )
+  }
+
+  return (
+    <PageContainer>
+      <Card>
+        <Tabs style={{overflow: 'visible'}}>
+          {[1, 2, 3].map((value) => {
+            return Tab(value)
+          })}
+        </Tabs>
       </Card>
     </PageContainer>
   );

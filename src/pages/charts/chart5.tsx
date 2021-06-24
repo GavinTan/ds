@@ -58,9 +58,9 @@ const Chart5: React.FC = () => {
                 <div style="display: block;height:20px;width: 100%;float:left;">
                     <i style="width: 10px;height: 10px;display: inline-block;background: ${e.color};border-radius: 10px;"></i>
                     <span>
-                        ${e.seriesName}（${eval(`data${selectTab}`).n[e.seriesName] || 0} - ${e.data}）
+                        ${e.seriesName}（${eval(`data${selectTab}`).n[e.seriesName] || 0} - ${e.data + (eval(`data${selectTab}`).n[e.seriesName] || 0)}）
                         <b style="float: right;">
-                            ${~((eval(`data${selectTab}`).n[e.seriesName] || 0) - e.data) + 1}
+                            ${e.data}
                         </b>
                     </span>
                 </div>
@@ -128,7 +128,6 @@ const Chart5: React.FC = () => {
     )
   }
 
-
   useEffect(() => {
     echartsRef.current?.getEchartsInstance().setOption(getOption(selectTab), true)
     // eslint-disable-next-line no-eval
@@ -138,6 +137,7 @@ const Chart5: React.FC = () => {
     <PageContainer>
       <Card>
         <Tabs
+          style={{overflow: 'visible'}}
           onChange={(activeKey) => {
             setSelectTab(activeKey)
             const isExist = tmpData.some((v) => {
