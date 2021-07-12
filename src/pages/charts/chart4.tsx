@@ -7,19 +7,23 @@ import {useModel} from "@@/plugin-model/useModel";
 import {ProFormText} from "@ant-design/pro-form";
 import {PageContainer} from "@ant-design/pro-layout";
 import moment from "moment";
+import {Fullscreen} from '@alitajs/antd-plus';
 
 const {TabPane} = Tabs;
 
 const Chart4: React.FC = () => {
-  const [selectCategoryList, setSelectCategoryList] = useState([])
+  const [selectCategoryList, setSelectCategoryList] = useState([]);
   const {initialState} = useModel<any>('@@initialState');
-  // const [data1, setData1] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
-  // const [data2, setData2] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
-  // const [data3, setData3] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []})
+  // const [data1, setData1] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []});
+  // const [data2, setData2] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []});
+  // const [data3, setData3] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []});
   const echartsRef = useRef<any>(null);
-  const [selectTab, setSelectTab] = useState<string>('1')
-  const [form] = Form.useForm()
-  const {data1, data2, data3, setData1, setData2, setData3, tmpData} = useModel('chart4')
+  const [selectTab, setSelectTab] = useState<string>('1');
+  const [form] = Form.useForm();
+  const {data1, data2, data3, setData1, setData2, setData3, tmpData} = useModel('chart4');
+  const [chatStyle, setChatStyle] = useState<any>({height: 'calc(100vh - 320px)'});
+  const [enabled, setEnabled] = useState(false);
+  let chartFullScreen = false;
 
 
   useEffect(() => {
@@ -28,13 +32,13 @@ const Chart4: React.FC = () => {
     })
     const isExist = tmpData.some((v) => {
       if (v.tab === selectTab) {
-        form.setFieldsValue({selectCategory: v.selectCategory, date: v.date})
+        form.setFieldsValue({selectCategory: v.selectCategory, date: v.date});
       }
-      return v.tab === selectTab
+      return v.tab === selectTab;
     })
 
     if (!isExist) {
-      form.setFieldsValue({selectCategory: [1, 2], date: ''})
+      form.setFieldsValue({selectCategory: [1, 2], date: ''});
     }
   }, [])
 
@@ -47,6 +51,7 @@ const Chart4: React.FC = () => {
         trigger: 'axis'
       },
       legend: {
+        top: 10,
         // eslint-disable-next-line no-eval
         data: eval(`data${key}`).legend_data
       },
@@ -58,8 +63,20 @@ const Chart4: React.FC = () => {
         containLabel: true,
       },
       toolbox: {
+        top: 10,
+        right: 20,
         feature: {
-          saveAsImage: {}
+          saveAsImage: {title: '下载', name: '补基差图'},
+          myFullScreen: {
+            show: true,
+            title: '全屏',
+            icon: 'path://M179.00873 99.777639h59.834603a49.9208 49.9208 0 0 0 0-99.777639H47.794738A48.897439 48.897439 0 0 0 0.04858 49.888819v199.555278a47.810119 47.810119 0 1 0 95.524297 0v-95.940037l201.250219 212.986883a48.321799 48.321799 0 1 0 68.245346-68.437227z m664.384759 0.6396h-60.442223a50.2406 50.2406 0 0 1 0-100.417239H975.854701a49.217239 49.217239 0 0 1 48.257839 50.20862v201.154278a48.289819 48.289819 0 1 1-96.515678 0V154.78326l-203.360899 214.585884a48.801499 48.801499 0 1 1-68.948907-69.076827zM179.00873 924.222361h59.834603a49.9208 49.9208 0 0 1 0 99.777639H47.794738a48.897439 48.897439 0 0 1-47.746158-49.888819v-199.555278a47.810119 47.810119 0 1 1 95.524297 0v95.940037l201.250219-212.986883a48.321799 48.321799 0 1 1 68.245346 68.437227z m664.384759-0.6396h-60.442223a50.2406 50.2406 0 0 0 0 100.417239H975.854701a49.217239 49.217239 0 0 0 48.257839-50.20862v-201.154278a48.289819 48.289819 0 1 0-96.515678 0v96.579638l-203.360899-214.585884a48.801499 48.801499 0 1 0-68.948907 69.076827z',
+            onclick: () => {
+              setChatStyle({height: '100%', width: '100%', background: 'white'});
+              chartFullScreen = !chartFullScreen;
+              setEnabled(chartFullScreen);
+            }
+          }
         }
       },
       xAxis: {
@@ -100,7 +117,12 @@ const Chart4: React.FC = () => {
   const Tab = (index: number) => {
     return (
       <TabPane tab={`Tab${index}`} key={index}>
-        <ReactECharts option={getOption(selectTab)} ref={echartsRef} style={{height: 'calc(100vh - 320px)'}}/>
+        <Fullscreen
+          enabled={enabled}
+          onClose={() => setChatStyle({height: 'calc(100vh - 320px)'})}
+        >
+          <ReactECharts option={getOption(selectTab)} ref={echartsRef} style={chatStyle}/>
+        </Fullscreen>
       </TabPane>
     )
   }
@@ -189,7 +211,7 @@ const Chart4: React.FC = () => {
               >
                 <DatePicker
                   disabledDate={(current) => {
-                    return [6, 7].indexOf(moment(current).isoWeekday()) !== -1
+                    return [6, 7].indexOf(moment(current).isoWeekday()) !== -1;
                   }}
                 />
               </Form.Item>
@@ -202,7 +224,7 @@ const Chart4: React.FC = () => {
           }
         >
           {[1, 2, 3].map((value) => {
-            return Tab(value)
+            return Tab(value);
           })
           }
         </Tabs>
