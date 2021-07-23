@@ -46,6 +46,7 @@
     "not ie <= 10"
   ],
   "dependencies": {
+    "@alitajs/antd-plus": "^2.5.0",
     "@ant-design/charts": "^1.1.6",
     "@ant-design/icons": "^4.5.0",
     "@ant-design/pro-descriptions": "^1.6.8",

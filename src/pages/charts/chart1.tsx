@@ -14,7 +14,7 @@ const Chart1: React.FC = () => {
   const [data, setData] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []});
   const {initialState} = useModel<any>('@@initialState');
   const echartsRef = useRef<any>(null);
-  const [chatStyle, setChatStyle] = useState<any>({height: 'calc(100vh - 250px)'});
+  const [chatStyle, setChatStyle] = useState<any>({height: 'calc(100vh - 310px)'});
   const [enabled, setEnabled] = useState(false);
   let chartFullScreen = false;
 
@@ -138,7 +138,7 @@ const Chart1: React.FC = () => {
         <Fullscreen
           enabled={enabled}
           onClose={() => {
-            setChatStyle({height: 'calc(100vh - 250px)'});
+            setChatStyle({height: 'calc(100vh - 310px)'});
           }}
         >
           <ReactECharts option={options} ref={echartsRef} style={chatStyle}/>
