@@ -84,6 +84,7 @@
     path: '/user',
     access: 'admin',
     component: './user',
+    hideInBreadcrumb: true
   },
   {
     path: '/',

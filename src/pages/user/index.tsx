@@ -218,7 +218,7 @@ const UserList: React.FC = () => {
     },
   ];
   return (
-    <PageContainer>
+    <PageContainer header={{title: '', breadcrumb: {}}}>
       <ProTable<API.UserResult, API.PageParams>
         headerTitle="用户列表"
         actionRef={actionRef}

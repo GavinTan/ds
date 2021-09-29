@@ -14,9 +14,9 @@ const Chart3: React.FC = () => {
   const echartsRef = useRef<any>(null);
   const [start, setStart] = useState<number>(1);
   const [end, setEnd] = useState<number>(100);
-  const [chatStyle1, setChatStyle1] = useState<any>({height: 'calc(100vh - 310px)'})
-  const [chatStyle2, setChatStyle2] = useState<any>({height: 'calc(100vh - 310px)'})
-  const [chatStyle3, setChatStyle3] = useState<any>({height: 'calc(100vh - 310px)'})
+  const [chatStyle1, setChatStyle1] = useState<any>({height: 'calc(100vh - 210px)'})
+  const [chatStyle2, setChatStyle2] = useState<any>({height: 'calc(100vh - 210px)'})
+  const [chatStyle3, setChatStyle3] = useState<any>({height: 'calc(100vh - 210px)'})
   const [enabled1, setEnabled1] = useState(false);
   const [enabled2, setEnabled2] = useState(false);
   const [enabled3, setEnabled3] = useState(false);
@@ -129,7 +129,7 @@ const Chart3: React.FC = () => {
       <TabPane tab={`Tab${index}`} key={index}>
         <Fullscreen
           enabled={eval(`enabled${index}`)}
-          onClose={() => eval(`setChatStyle${selectTab}`)({height: 'calc(100vh - 310px)'})}
+          onClose={() => eval(`setChatStyle${selectTab}`)({height: 'calc(100vh - 210px)'})}
         >
           <ReactECharts option={options} ref={echartsRef} style={eval(`chatStyle${selectTab}`)} onEvents={{
             dataZoom: () => {
@@ -155,7 +155,7 @@ const Chart3: React.FC = () => {
   }
 
   return (
-    <PageContainer>
+    <PageContainer header={{title: '', breadcrumb: {}}}>
       <Card>
         <Tabs style={{overflow: 'visible'}} onChange={(activeKey) => {
           setSelectTab(activeKey);

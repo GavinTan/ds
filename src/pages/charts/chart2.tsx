@@ -8,6 +8,7 @@ import {PageContainer} from "@ant-design/pro-layout";
 import {ProFormText} from "@ant-design/pro-form";
 import moment from "moment";
 import {Fullscreen} from '@alitajs/antd-plus';
+import  "./chart.less";
 
 const {TabPane} = Tabs;
 
@@ -21,9 +22,9 @@ const Chart2: React.FC = () => {
   const [selectTab, setSelectTab] = useState<string>('1');
   const [form] = Form.useForm();
   const [tmpData] = useState<{ tab: string, selectCategory: string[] }[]>([{tab: '1', selectCategory: []}]);
-  const [chatStyle1, setChatStyle1] = useState<any>({height: 'calc(100vh - 310px)'})
-  const [chatStyle2, setChatStyle2] = useState<any>({height: 'calc(100vh - 310px)'})
-  const [chatStyle3, setChatStyle3] = useState<any>({height: 'calc(100vh - 310px)'})
+  const [chatStyle1, setChatStyle1] = useState<any>({height: 'calc(100vh - 210px)'})
+  const [chatStyle2, setChatStyle2] = useState<any>({height: 'calc(100vh - 210px)'})
+  const [chatStyle3, setChatStyle3] = useState<any>({height: 'calc(100vh - 210px)'})
   const [enabled1, setEnabled1] = useState(false);
   const [enabled2, setEnabled2] = useState(false);
   const [enabled3, setEnabled3] = useState(false);
@@ -129,7 +130,7 @@ const Chart2: React.FC = () => {
       <TabPane tab={`Tab${index}`} key={index}>
         <Fullscreen
           enabled={eval(`enabled${index}`)}
-          onClose={() => eval(`setChatStyle${index}`)({height: 'calc(100vh - 310px)'})}
+          onClose={() => eval(`setChatStyle${index}`)({height: 'calc(100vh - 210px)'})}
         >
           <ReactECharts option={getOption(selectTab)} ref={echartsRef} style={eval(`chatStyle${index}`)}/>
         </Fullscreen>
@@ -143,7 +144,7 @@ const Chart2: React.FC = () => {
   }, [eval(`data${selectTab}`), echartsRef])
 
   return (
-    <PageContainer>
+    <PageContainer header={{title: '', breadcrumb: {}}}>
       <Card>
         <Tabs
           style={{overflow: 'visible'}}
@@ -192,8 +193,7 @@ const Chart2: React.FC = () => {
               />
               <Form.Item
                 name="selectCategory"
-                rules={[{required: true, message: "至少选择一项"}]}
-                validateTrigger={[]}
+                rules={[{required: true, message: ''}]}
               >
                 <Select
                   mode="multiple"

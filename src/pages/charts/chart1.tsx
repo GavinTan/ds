@@ -4,7 +4,7 @@ import {Card, Form, DatePicker, Button} from "antd";
 import {actionPriceData} from "@/services/api/pricedata";
 import {PageContainer} from "@ant-design/pro-layout";
 import {useModel} from "@@/plugin-model/useModel";
-import ProFrom, {ProFormDateRangePicker, ProFormText} from "@ant-design/pro-form";
+import {ProFormText} from "@ant-design/pro-form";
 import {Fullscreen} from '@alitajs/antd-plus';
 import moment from "moment";
 
@@ -14,7 +14,7 @@ const Chart1: React.FC = () => {
   const [data, setData] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []});
   const {initialState} = useModel<any>('@@initialState');
   const echartsRef = useRef<any>(null);
-  const [chatStyle, setChatStyle] = useState<any>({height: 'calc(100vh - 310px)'});
+  const [chatStyle, setChatStyle] = useState<any>({height: 'calc(100vh - 210px)'});
   const [enabled, setEnabled] = useState(false);
   let chartFullScreen = false;
 
@@ -101,7 +101,7 @@ const Chart1: React.FC = () => {
   };
 
   return (
-    <PageContainer>
+    <PageContainer header={{title: '', breadcrumb: {}}}>
       <Card extra={
         <Form
           layout="inline"
@@ -138,7 +138,7 @@ const Chart1: React.FC = () => {
         <Fullscreen
           enabled={enabled}
           onClose={() => {
-            setChatStyle({height: 'calc(100vh - 310px)'});
+            setChatStyle({height: 'calc(100vh - 210px)'});
           }}
         >
           <ReactECharts option={options} ref={echartsRef} style={chatStyle}/>

@@ -177,7 +177,7 @@ const VarietyList: React.FC = () => {
     },
   ];
   return (
-    <PageContainer>
+    <PageContainer header={{title: '', breadcrumb: {}}}>
       <ProTable<API.VarietyResult, API.PageParams>
         headerTitle="品种列表"
         actionRef={actionRef}

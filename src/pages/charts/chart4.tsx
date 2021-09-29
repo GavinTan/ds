@@ -8,6 +8,7 @@ import {ProFormText} from "@ant-design/pro-form";
 import {PageContainer} from "@ant-design/pro-layout";
 import moment from "moment";
 import {Fullscreen} from '@alitajs/antd-plus';
+import  "./chart.less";
 
 const {TabPane} = Tabs;
 
@@ -21,9 +22,9 @@ const Chart4: React.FC = () => {
   const [selectTab, setSelectTab] = useState<string>('1');
   const [form] = Form.useForm();
   const {data1, data2, data3, setData1, setData2, setData3, tmpData} = useModel('chart4');
-  const [chatStyle1, setChatStyle1] = useState<any>({height: 'calc(100vh - 310px)'});
-  const [chatStyle2, setChatStyle2] = useState<any>({height: 'calc(100vh - 310px)'});
-  const [chatStyle3, setChatStyle3] = useState<any>({height: 'calc(100vh - 310px)'});
+  const [chatStyle1, setChatStyle1] = useState<any>({height: 'calc(100vh - 210px)'});
+  const [chatStyle2, setChatStyle2] = useState<any>({height: 'calc(100vh - 210px)'});
+  const [chatStyle3, setChatStyle3] = useState<any>({height: 'calc(100vh - 210px)'});
   const [enabled1, setEnabled1] = useState(false);
   const [enabled2, setEnabled2] = useState(false);
   const [enabled3, setEnabled3] = useState(false);
@@ -124,7 +125,7 @@ const Chart4: React.FC = () => {
       <TabPane tab={`Tab${index}`} key={index}>
         <Fullscreen
           enabled={eval(`enabled${index}`)}
-          onClose={() => eval(`setChatStyle${index}`)({height: 'calc(100vh - 310px)'})}
+          onClose={() => eval(`setChatStyle${index}`)({height: 'calc(100vh - 210px)'})}
         >
           <ReactECharts option={getOption(selectTab)} ref={echartsRef} style={eval(`chatStyle${index}`)}/>
         </Fullscreen>
@@ -138,7 +139,7 @@ const Chart4: React.FC = () => {
   }, [eval(`data${selectTab}`), echartsRef])
 
   return (
-    <PageContainer>
+    <PageContainer header={{title: '', breadcrumb: {}}}>
       <Card>
         <Tabs
           style={{overflow: 'visible'}}
@@ -195,8 +196,7 @@ const Chart4: React.FC = () => {
                           {...restField}
                           name={[name, `category${name + 1}`]}
                           fieldKey={[fieldKey, selectTab]}
-                          rules={[{required: true, message: "至少选择一项"}]}
-                          validateTrigger={[]}
+                          rules={[{required: true, message: ''}]}
                           label={key === 0 ? '主线' : '副线'}
                         >
                           <Select
@@ -211,8 +211,7 @@ const Chart4: React.FC = () => {
               </Form.List>
               <Form.Item
                 name="date"
-                rules={[{required: true, message: "请选择日期"}]}
-                validateTrigger={[]}
+                rules={[{required: true, message: ''}]}
               >
                 <DatePicker
                   disabledDate={(current) => {

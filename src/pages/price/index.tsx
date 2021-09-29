@@ -192,7 +192,7 @@ const PriceList: React.FC = () => {
     },
   ];
   return (
-    <PageContainer>
+    <PageContainer header={{title: '', breadcrumb: {}}}>
       <ProTable<API.PriceDataResult, API.PageParams>
         headerTitle="价格数据"
         actionRef={actionRef}
