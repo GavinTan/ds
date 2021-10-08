@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-y%wf-g6^i2xx=s)x6-*yl=!f1=l77p*zu78fh!b-lt&0-ps3f#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
@@ -85,7 +85,7 @@ DATABASES = {
         'PORT': os.environ.get("DS_DB_PORT") or 3306,
         'NAME': os.environ.get("DS_DB_NAME") or 'ds',
         'USER': os.environ.get("DS_DB_USER") or 'root',
-        'PASSWORD': os.environ.get("WOPS_DB_PASSWORD") or 'abcu123456',
+        'PASSWORD': os.environ.get("WOPS_DB_PASSWORD") or 'wg123456',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         },

@@ -171,6 +171,7 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
     def action(self, request, *args, **kwargs):
         a = self.request.query_params.get('a')
         uid = request.data.get('uid')
+        timeline = request.data.get('timeline', 1)
 
         if a == 'get_chart1_data':
             data = {
@@ -205,6 +206,10 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                         for series in data['series_data']:
                             if series.get('name') == category:
                                 series.get('data').append(price)
+            # 先这样, 暂时不做优化
+            if timeline > 1:
+                data['x_data'] = ["-".join(str(data['x_data'][i]).split("-")[:-1]) if timeline == 22 else data['x_data'][i] for i in range(0, len(data['x_data']), timeline)]
+
             return Response(data)
 
         if a == 'get_chart2_data':
@@ -233,7 +238,6 @@ class PriceDataView(viewsets.ModelViewSet, MultipleDelete):
                                     '-date').first()
                                 if record:
                                     price = record.price
-
                             price_data.append(price)
 
                 series['data'] = price_data
