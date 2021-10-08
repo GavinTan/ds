@@ -24,10 +24,10 @@ const Chart5: React.FC = () => {
   const [selectTab, setSelectTab] = useState<string>('1');
   const [form] = Form.useForm();
   const {data1, data2, data3, data4, setData1, setData2, setData3, setData4, tmpData} = useModel('chart5');
-  const [chatStyle1, setChatStyle1] = useState<any>({height: 'calc(100vh - 210px)'});
-  const [chatStyle2, setChatStyle2] = useState<any>({height: 'calc(100vh - 210px)'});
-  const [chatStyle3, setChatStyle3] = useState<any>({height: 'calc(100vh - 210px)'});
-  const [chatStyle4, setChatStyle4] = useState<any>({height: 'calc(100vh - 210px)'});
+  const [chatStyle1, setChatStyle1] = useState<any>({height: 'calc(100vh - 115px)'});
+  const [chatStyle2, setChatStyle2] = useState<any>({height: 'calc(100vh - 115px)'});
+  const [chatStyle3, setChatStyle3] = useState<any>({height: 'calc(100vh - 115px)'});
+  const [chatStyle4, setChatStyle4] = useState<any>({height: 'calc(100vh - 115px)'});
   const [enabled1, setEnabled1] = useState(false);
   const [enabled2, setEnabled2] = useState(false);
   const [enabled3, setEnabled3] = useState(false);
@@ -150,7 +150,7 @@ const Chart5: React.FC = () => {
       <TabPane tab={`Tab${index}`} key={index}>
         <Fullscreen
           enabled={eval(`enabled${index}`)}
-          onClose={() => eval(`setChatStyle${index}`)({height: 'calc(100vh - 210px)'})}
+          onClose={() => eval(`setChatStyle${index}`)({height: 'calc(100vh - 115px)'})}
         >
           <ReactECharts option={getOption(selectTab)} ref={echartsRef} style={eval(`chatStyle${index}`)}/>
         </Fullscreen>

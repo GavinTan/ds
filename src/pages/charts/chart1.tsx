@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import ReactECharts from 'echarts-for-react';
-import {Card, Form, DatePicker, Button} from "antd";
+import {Card, Form, DatePicker, Button, Radio} from "antd";
 import {actionPriceData} from "@/services/api/pricedata";
 import {PageContainer} from "@ant-design/pro-layout";
 import {useModel} from "@@/plugin-model/useModel";
@@ -14,7 +14,7 @@ const Chart1: React.FC = () => {
   const [data, setData] = useState<API.ChartData>({legend_data: [], x_data: [], series_data: []});
   const {initialState} = useModel<any>('@@initialState');
   const echartsRef = useRef<any>(null);
-  const [chatStyle, setChatStyle] = useState<any>({height: 'calc(100vh - 210px)'});
+  const [chatStyle, setChatStyle] = useState<any>({height: 'calc(100vh - 115px)'});
   const [enabled, setEnabled] = useState(false);
   let chartFullScreen = false;
 
@@ -33,6 +33,12 @@ const Chart1: React.FC = () => {
       mounted = false;
     }
   }, [])
+
+  const timelineOptions = [
+    { label: '日线', value: 1 },
+    { label: '周线', value: 5 },
+    { label: '月线', value: 22 }
+  ];
 
   const options = {
     title: {
@@ -103,42 +109,50 @@ const Chart1: React.FC = () => {
   return (
     <PageContainer header={{title: '', breadcrumb: {}}}>
       <Card extra={
-        <Form
-          layout="inline"
-          onFinish={(values) => {
-            echartsRef.current.getEchartsInstance().showLoading();
-            actionPriceData({a: 'get_chart1_data'}, {data: values}).then((res) => {
-              setData(res);
-              echartsRef.current.getEchartsInstance().hideLoading();
-            })
-          }}
-        >
-          <ProFormText
-            name="uid"
-            initialValue={initialState.currentUser.id}
-            hidden
-          />
-          <Form.Item
-            name="dateRange"
+          <Form
+            layout="inline"
+            initialValues={{timeline: 1}}
+            onFinish={(values) => {
+              echartsRef.current.getEchartsInstance().showLoading();
+              actionPriceData({a: 'get_chart1_data'}, {data: values}).then((res) => {
+                setData(res);
+                echartsRef.current.getEchartsInstance().hideLoading();
+              })
+            }}
           >
-            <RangePicker
-              disabledDate={(current) => {
-                return [6, 7].indexOf(moment(current).isoWeekday()) !== -1;
-              }}
+            <Form.Item name="timeline">
+              <Radio.Group
+                options={timelineOptions}
+                optionType="button"
+                buttonStyle="solid"
+              />
+            </Form.Item>
+            <ProFormText
+              name="uid"
+              initialValue={initialState.currentUser.id}
+              hidden
             />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              查看
-            </Button>
-          </Form.Item>
-        </Form>
+            <Form.Item
+              name="dateRange"
+            >
+              <RangePicker
+                disabledDate={(current) => {
+                  return [6, 7].indexOf(moment(current).isoWeekday()) !== -1;
+                }}
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                查看
+              </Button>
+            </Form.Item>
+          </Form>
       }
       >
         <Fullscreen
           enabled={enabled}
           onClose={() => {
-            setChatStyle({height: 'calc(100vh - 210px)'});
+            setChatStyle({height: 'calc(100vh - 115px)'});
           }}
         >
           <ReactECharts option={options} ref={echartsRef} style={chatStyle}/>
