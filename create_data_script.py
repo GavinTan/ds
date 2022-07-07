@@ -45,7 +45,6 @@ def main():
         q.task_done()
 
 for i in range(20):
-    t = threading.Thread(target=main)
-    t.start()
+    threading.Thread(target=main, daemon=True).start()
 
 q.join()
