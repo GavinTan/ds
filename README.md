@@ -1,53 +1,17 @@
 # DS Frontend
 
-Follow is the quick guide for how to use.
+![image-20220902172434511](https://raw.githubusercontent.com/GavinTan/files/master/picgo/image-20220902172434511.png)
 
-## Environment Prepare
+![image-20220902172356300](https://raw.githubusercontent.com/GavinTan/files/master/picgo/image-20220902172356300.png)
 
-Install `node_modules`:
 
-```bash
-npm install
-```
 
-or
+![image-20220902172337505](https://raw.githubusercontent.com/GavinTan/files/master/picgo/image-20220902172337505.png)
+
+## build
 
 ```bash
 yarn
-```
 
-## Provided Scripts
-
-Ant Design Pro provides some useful script to help you quick start and build with web project, code style check and test.
-
-Scripts provided in `package.json`. It's safe to modify or add additional script:
-
-### Start project
-
-```bash
-npm start
-```
-
-### Build project
-
-```bash
 npm run build
-```
-
-### Check code style
-
-```bash
-npm run lint
-```
-
-You can also use script to auto fix some lint error:
-
-```bash
-npm run lint:fix
-```
-
-### Test code
-
-```bash
-npm test
 ```
